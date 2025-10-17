@@ -9,10 +9,11 @@ dist
 # code coverage
 coverage
 *.lcov
+.vitest
 
 # logs
 logs
-_.log
+*.log
 report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # dotenv environment variable files
@@ -32,5 +33,25 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # IntelliJ based IDEs
 .idea
 
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
 # Finder (MacOS) folder config
 .DS_Store
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
+
+# Build artifacts
+.turbo
+
+# Test results
+test-results/
+playwright-report/
