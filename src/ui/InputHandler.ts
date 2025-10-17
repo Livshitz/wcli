@@ -218,26 +218,40 @@ export class InputHandler {
     const result = await this.onAutocomplete(input, cursorPos);
 
     if (result.suggestions.length === 1) {
-      // Single match - autocomplete it
-      this.inputElement.value = result.replacement || result.suggestions[0];
+      // Single match - autocomplete it by replacing the last part
+      const beforeCursor = input.slice(0, cursorPos);
+      const afterCursor = input.slice(cursorPos);
+      const parts = beforeCursor.split(' ');
+      parts[parts.length - 1] = result.suggestions[0];
+      this.inputElement.value = parts.join(' ') + afterCursor;
+      // Move cursor to end of completed part
+      const newCursorPos = parts.join(' ').length;
+      this.inputElement.setSelectionRange(newCursorPos, newCursorPos);
     } else if (result.suggestions.length > 1) {
       // Multiple matches - store them for cycling
+      const beforeCursor = input.slice(0, cursorPos);
+      const afterCursor = input.slice(cursorPos);
+      const parts = beforeCursor.split(' ');
+      
       this.lastSuggestions = result.suggestions.map(s => {
-        const parts = input.split(' ');
-        parts[parts.length - 1] = s;
-        return parts.join(' ');
+        const newParts = [...parts];
+        newParts[newParts.length - 1] = s;
+        return newParts.join(' ') + afterCursor;
       });
       this.suggestionIndex = 0;
       
       // Find common prefix
       const commonPrefix = this.findCommonPrefix(result.suggestions);
       if (commonPrefix && commonPrefix.length > result.replacement.length) {
-        const parts = input.split(' ');
         parts[parts.length - 1] = commonPrefix;
-        this.inputElement.value = parts.join(' ');
+        this.inputElement.value = parts.join(' ') + afterCursor;
+        const newCursorPos = parts.join(' ').length;
+        this.inputElement.setSelectionRange(newCursorPos, newCursorPos);
       } else {
         // Show first suggestion
         this.inputElement.value = this.lastSuggestions[0];
+        const newCursorPos = this.lastSuggestions[0].length - afterCursor.length;
+        this.inputElement.setSelectionRange(newCursorPos, newCursorPos);
       }
     }
   }
