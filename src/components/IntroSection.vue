@@ -247,7 +247,7 @@ async function runIntroAnimation() {
     },
     () => {
       logoContent.value = animation.getGradientLogo();
-      logoFinal.value = true;
+    //   logoFinal.value = true; // <--- this causes weird disappearance on mobile
       animationComplete.value = true;
       
       // Trigger powerful center ripple splash
@@ -459,7 +459,7 @@ onUnmounted(() => {
   z-index: -1;
 }
 
-:deep(.intro-logo-final) {
+.intro-logo-final {
   animation: logoGlow 2s ease-in-out;
 }
 
