@@ -3,7 +3,44 @@ import { TerminalUI } from './ui/TerminalUI';
 import { registerBuiltInCommands } from './commands';
 import './styles/terminal.css';
 
+function preventPinchZoom() {
+  // Prevent pinch zoom gestures
+  document.addEventListener('gesturestart', (e) => e.preventDefault());
+  document.addEventListener('gesturechange', (e) => e.preventDefault());
+  document.addEventListener('gestureend', (e) => e.preventDefault());
+  
+  // Prevent double-tap zoom (alternative method)
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+      e.preventDefault();
+    }
+    lastTouchEnd = now;
+  }, { passive: false });
+  
+  // Prevent pinch zoom using touchmove
+  let initialDistance = 0;
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      initialDistance = Math.hypot(
+        e.touches[0].pageX - e.touches[1].pageX,
+        e.touches[0].pageY - e.touches[1].pageY
+      );
+    }
+  });
+  
+  document.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+}
+
 async function main() {
+  // Prevent pinch zoom on mobile via JavaScript
+  preventPinchZoom();
+  
   // Create terminal instance
   const terminal = new Terminal();
   

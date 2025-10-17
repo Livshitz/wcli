@@ -1,7 +1,10 @@
+import { DitherPanel, type Ripple } from './DitherPanel';
+
 export interface AnimationConfig {
   duration?: number;
   ditherSteps?: number;
   colors?: string[];
+  showSideDither?: boolean;
 }
 
 const WCLI_LOGO = `
@@ -21,17 +24,24 @@ const DITHER_CHARS = [
   '█',
 ];
 
+
 export class IntroAnimation {
-  private config: Required<AnimationConfig>;
+  private config: Required<AnimationConfig> & { showSideDither: boolean };
   private logoLines: string[];
   private width: number;
   private height: number;
+  private sideDitherTime: number = 0;
+  private ripples: Ripple[] = [];
+  private rippleTriggerCallback?: () => void;
+  private leftPanel?: DitherPanel;
+  private rightPanel?: DitherPanel;
 
   constructor(config: AnimationConfig = {}) {
     this.config = {
       duration: config.duration ?? 2000,
       ditherSteps: config.ditherSteps ?? 8,
       colors: config.colors ?? ['#39bae6', '#5ccfe6', '#59c2ff', '#d4bfff'],
+      showSideDither: config.showSideDither ?? true,
     };
 
     this.logoLines = WCLI_LOGO.split('\n');
@@ -180,5 +190,174 @@ export class IntroAnimation {
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
+
+
+  /**
+   * Creates dither panels
+   */
+  createDitherPanels(): { left: DitherPanel; right: DitherPanel } {
+    const isMobile = window.innerWidth <= 768;
+    const ditherWidth = isMobile ? 15 : 30;
+    
+    this.leftPanel = new DitherPanel({
+      width: ditherWidth,
+      height: this.height,
+      position: 'left',
+    });
+    
+    this.rightPanel = new DitherPanel({
+      width: ditherWidth,
+      height: this.height,
+      position: 'right',
+    });
+    
+    return {
+      left: this.leftPanel,
+      right: this.rightPanel,
+    };
+  }
+
+  /**
+   * Starts interactive side dither with ripple effects
+   */
+  startSideDitherAnimation(
+    leftPanel: DitherPanel,
+    rightPanel: DitherPanel,
+    stopSignal: { stopped: boolean },
+    triggerInitialShock: boolean = false
+  ): void {
+    let lastTime = performance.now();
+    let mouseX = -1000;
+    let mouseY = -1000;
+    let nextRandomRipple = performance.now() + 5000 + Math.random() * 8000;
+    
+    this.leftPanel = leftPanel;
+    this.rightPanel = rightPanel;
+    
+    // Reset ripples
+    this.ripples = [];
+    
+    // Set up callback for external ripple triggers
+    this.rippleTriggerCallback = () => {
+      const leftRect = leftPanel.getElement().getBoundingClientRect();
+      const rightRect = rightPanel.getElement().getBoundingClientRect();
+      
+      // Center of the screen
+      const centerX = (leftRect.right + rightRect.left) / 2;
+      const centerY = (leftRect.top + leftRect.bottom) / 2;
+      
+      // Create a strong central ripple
+      this.ripples.push({
+        x: centerX,
+        y: centerY,
+        time: 0,
+        maxTime: 3000
+      });
+    };
+    
+    // Trigger initial shock from center when logo appears
+    if (triggerInitialShock) {
+      setTimeout(() => {
+        if (this.rippleTriggerCallback) {
+          this.rippleTriggerCallback();
+        }
+      }, 100);
+    }
+    
+    // Track mouse movement and create ripples based on velocity
+    let lastMouseX = -1000;
+    let lastMouseY = -1000;
+    let lastMoveTime = performance.now();
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      
+      const currentTime = performance.now();
+      const deltaTime = currentTime - lastMoveTime;
+      
+      if (deltaTime > 0) {
+        const dx = mouseX - lastMouseX;
+        const dy = mouseY - lastMouseY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const velocity = distance / deltaTime; // pixels per ms
+        
+        // Create subtle ripples based on velocity (only if moving fast enough)
+        if (velocity > 0.5 && distance > 15) {
+          // Strength based on velocity, capped
+          const strength = Math.min(velocity / 2, 1);
+          
+          this.ripples.push({
+            x: mouseX,
+            y: mouseY,
+            time: 0,
+            maxTime: 1500 + strength * 1000 // Longer ripples for faster movement
+          });
+        }
+      }
+      
+      lastMouseX = mouseX;
+      lastMouseY = mouseY;
+      lastMoveTime = currentTime;
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    
+    const animate = () => {
+      if (stopSignal.stopped) {
+        document.removeEventListener('mousemove', handleMouseMove);
+        return;
+      }
+      
+      const currentTime = performance.now();
+      const deltaTime = (currentTime - lastTime) / 1000;
+      lastTime = currentTime;
+      
+      // Update ripples
+      for (let i = this.ripples.length - 1; i >= 0; i--) {
+        this.ripples[i].time += deltaTime * 1000;
+        if (this.ripples[i].time >= this.ripples[i].maxTime) {
+          this.ripples.splice(i, 1);
+        }
+      }
+      
+      // Add random ripple (less frequently)
+      if (currentTime >= nextRandomRipple) {
+        const leftRect = leftPanel.getElement().getBoundingClientRect();
+        const rightRect = rightPanel.getElement().getBoundingClientRect();
+        
+        // Random position in one of the panels
+        const useLeft = Math.random() < 0.5;
+        const rect = useLeft ? leftRect : rightRect;
+        
+        this.ripples.push({
+          x: rect.left + Math.random() * rect.width,
+          y: rect.top + Math.random() * rect.height,
+          time: 0,
+          maxTime: 2500
+        });
+        
+        nextRandomRipple = currentTime + 5000 + Math.random() * 8000;
+      }
+      
+      // Render both panels
+      leftPanel.render(mouseX, mouseY, this.ripples);
+      rightPanel.render(mouseX, mouseY, this.ripples);
+      
+      requestAnimationFrame(animate);
+    };
+    
+    requestAnimationFrame(animate);
+  }
+
+  /**
+   * Trigger a ripple effect from the center
+   */
+  triggerCenterRipple(): void {
+    if (this.rippleTriggerCallback) {
+      this.rippleTriggerCallback();
+    }
+  }
 }
+
 

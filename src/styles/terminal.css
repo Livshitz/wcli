@@ -4,6 +4,11 @@
   box-sizing: border-box;
 }
 
+html {
+  touch-action: manipulation; /* Prevent double-tap zoom and reduce touch delay */
+  -webkit-text-size-adjust: 100%; /* Prevent font scaling in landscape */
+}
+
 :root {
   --bg-color: #0a0e14;
   --text-color: #b3b9c5;
@@ -26,15 +31,19 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   height: 100vh;
+  height: 100dvh; /* Use dynamic viewport height for mobile browsers */
   overflow: hidden;
+  touch-action: manipulation; /* Disable pinch zoom and double-tap zoom */
 }
 
 #terminal {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh; /* Use dynamic viewport height for mobile browsers */
   padding: 20px;
   overflow: hidden;
+  touch-action: manipulation; /* Disable pinch zoom */
 }
 
 .terminal-output {
@@ -203,11 +212,18 @@ body {
 @media (max-width: 768px) {
   #terminal {
     padding: 10px;
+    /* Ensure proper spacing on mobile to prevent input from being hidden */
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
   }
   
   .terminal-output,
   .terminal-input {
     font-size: 12px;
+  }
+  
+  .terminal-input-container {
+    /* Add extra padding on mobile to ensure input is visible */
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
   }
 }
 
@@ -229,6 +245,56 @@ body {
   justify-content: center;
   align-items: center;
   position: relative;
+  gap: 30px;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.intro-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.intro-dither-left,
+.intro-dither-right {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.2;
+  color: rgba(57, 186, 230, 0.5);
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  flex: 1 1 0;
+  min-width: 0;
+  opacity: 0;
+  animation: ditherFadeIn 1.2s ease-out forwards;
+  animation-delay: 0.8s;
+  text-shadow: 
+    0 0 8px rgba(57, 186, 230, 0.4),
+    0 0 12px rgba(92, 207, 230, 0.3);
+  letter-spacing: 2px;
+  cursor: crosshair;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.intro-dither-left {
+  text-align: right;
+}
+
+.intro-dither-right {
+  text-align: left;
+}
+
+@keyframes ditherFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .intro-logo {
@@ -302,30 +368,23 @@ body {
 }
 
 .intro-complete {
-  animation: fadeInScale 0.5s ease-out;
-}
-
-@keyframes fadeInScale {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  /* Remove zoom effect */
 }
 
 /* Responsive intro */
 @media (max-width: 768px) {
   .intro-logo {
-    font-size: 10px;
+    font-size: 8px;
     letter-spacing: 0;
-    padding: 10px;
+    padding: 5px;
+    line-height: 1;
   }
   
   .intro-animation {
     margin: 10px 0;
+    gap: 10px;
+    padding: 0 10px;
+    width: 100%;
   }
   
   /* Reduce glow effects on mobile for performance */
@@ -335,6 +394,57 @@ body {
   
   .intro-logo {
     text-shadow: 0 0 5px rgba(57, 186, 230, 0.4);
+  }
+  
+  .intro-dither-left,
+  .intro-dither-right {
+    font-size: 6px;
+    line-height: 1;
+    letter-spacing: 0.5px;
+    color: rgba(57, 186, 230, 0.35);
+    text-shadow: 
+      0 0 6px rgba(57, 186, 230, 0.3),
+      0 0 8px rgba(92, 207, 230, 0.2);
+    min-width: 40px;
+    max-width: 80px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .intro-dither-left,
+  .intro-dither-right {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+  }
+  
+  .intro-animation {
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .intro-animation {
+    gap: 40px;
+    padding: 0 40px;
+  }
+  
+  .intro-dither-left,
+  .intro-dither-right {
+    font-size: 15px;
+    letter-spacing: 2px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .intro-animation {
+    gap: 60px;
+    padding: 0 60px;
+  }
+  
+  .intro-dither-left,
+  .intro-dither-right {
+    font-size: 16px;
+    letter-spacing: 2.5px;
   }
 }
 

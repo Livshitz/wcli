@@ -322,31 +322,57 @@ export class TerminalUI {
       duration: this.config.introDuration,
       ditherSteps: Math.floor(this.config.introDuration / 150),
       colors: ['#39bae6', '#5ccfe6', '#59c2ff', '#d4bfff'],
+      showSideDither: true,
     });
 
     // Create a temporary container for the animation
     const animationContainer = document.createElement('div');
     animationContainer.className = 'intro-animation';
+    
+    // Create dither panels using components
+    const { left: leftPanel, right: rightPanel } = animation.createDitherPanels();
+    
+    const logoContainer = document.createElement('div');
+    logoContainer.className = 'intro-logo-container';
+    
+    animationContainer.appendChild(leftPanel.getElement());
+    animationContainer.appendChild(logoContainer);
+    animationContainer.appendChild(rightPanel.getElement());
+    
     this.outputContainer.appendChild(animationContainer);
+
+    // Start side dither animation (will run continuously)
+    const stopSignal = { stopped: false };
+    
+    // Start animation without initial shock (will trigger after logo appears)
+    animation.startSideDitherAnimation(leftPanel, rightPanel, stopSignal, false);
 
     await animation.animate(
       (content: string, progress: number) => {
         // Update the animation frame
-        animationContainer.innerHTML = `<pre class="intro-logo">${this.escapeHtml(content)}</pre>`;
+        logoContainer.innerHTML = `<pre class="intro-logo">${this.escapeHtml(content)}</pre>`;
       },
       () => {
         // On complete, replace with colored final logo
-        animationContainer.innerHTML = '';
+        logoContainer.innerHTML = '';
         const logoHtml = animation.getGradientLogo();
-        animationContainer.innerHTML = `<pre class="intro-logo intro-logo-final">${logoHtml}</pre>`;
+        logoContainer.innerHTML = `<pre class="intro-logo intro-logo-final">${logoHtml}</pre>`;
         
         // Add a subtle entrance effect
         animationContainer.classList.add('intro-complete');
+        
+        // Trigger the shock ripple from the center after logo appears
+        setTimeout(() => {
+          animation.triggerCenterRipple();
+        }, 100);
       }
     );
 
     // Small delay to appreciate the final logo
     await this.delay(400);
+    
+    // Keep the side dither animation running continuously
+    // The animation will continue to provide ambient movement
   }
 
   private delay(ms: number): Promise<void> {
