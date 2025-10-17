@@ -1,12 +1,10 @@
-import { defineConfig } from 'vite';
-import pugPlugin from 'vite-plugin-pug';
+import { defineConfig } from 'vitest/config';
+import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [
-    pugPlugin({
-      pretty: true,
-    }),
+    vue(),
   ],
   server: {
     port: 3000,

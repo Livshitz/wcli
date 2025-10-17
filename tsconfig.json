@@ -13,10 +13,20 @@
     "noEmit": true,
     "types": ["bun-types", "vite/client"],
     "baseUrl": ".",
+    "jsx": "preserve",
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*", "tests/commands.test.ts", "tests/core/Filesystem.test.ts", "tests/core/CommandParser.test.ts", "tests/core/CommandExecutor.test.ts", "tests/utils/PathResolver.test.ts", "tests/utils/Stream.test.ts"],
+  "include": [
+    "src/**/*",
+    "src/**/*.vue",
+    "tests/commands.test.ts",
+    "tests/core/Filesystem.test.ts",
+    "tests/core/CommandParser.test.ts",
+    "tests/core/CommandExecutor.test.ts",
+    "tests/utils/PathResolver.test.ts",
+    "tests/utils/Stream.test.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

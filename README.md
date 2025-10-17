@@ -1,8 +1,8 @@
 # WCLI - Web Command Line Interface
 
-A fully-featured, modular terminal simulator that runs entirely in your browser. Built with TypeScript, Vite, and modern web technologies.
+A fully-featured, modular terminal simulator that runs entirely in your browser. Built with Vue 3, TypeScript, and Vite.
 
-[![Tests](https://img.shields.io/badge/tests-97%20passing-brightgreen)]() [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)]() [![License](https://img.shields.io/badge/license-MIT-blue)]()
+[![Tests](https://img.shields.io/badge/tests-97%20passing-brightgreen)]() [![Vue](https://img.shields.io/badge/Vue-3.5-4FC08D)]() [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)]() [![License](https://img.shields.io/badge/license-MIT-blue)]()
 
 ## ✨ Features
 
@@ -114,6 +114,10 @@ unalias gs                     # Remove an alias
 ```
 wcli/
 ├── src/
+│   ├── components/     # Vue 3 components
+│   │   ├── TerminalComponent.vue
+│   │   ├── TerminalOutput.vue
+│   │   └── TerminalInput.vue
 │   ├── core/           # Terminal engine
 │   │   ├── Terminal.ts
 │   │   ├── Filesystem.ts
@@ -121,12 +125,14 @@ wcli/
 │   │   ├── CommandExecutor.ts
 │   │   └── PluginLoader.ts
 │   ├── commands/       # Built-in commands (20 total)
-│   ├── ui/            # Terminal UI components
+│   ├── ui/            # UI utilities (animations)
 │   ├── utils/         # Utilities (streams, paths)
-│   └── types/         # TypeScript interfaces
+│   ├── types/         # TypeScript interfaces
+│   └── App.vue        # Main Vue app
 ├── tests/             # Comprehensive test suite
 ├── FEATURES.md        # Detailed feature documentation
-└── TESTING.md         # Testing guide
+├── TESTING.md         # Testing guide
+└── MIGRATION.md       # Vue migration notes
 ```
 
 ### Available Scripts
@@ -255,19 +261,21 @@ mycommand
 - Environment variable support
 
 ### Terminal UI
-- Custom rendering without external libraries
-- Virtual scrolling for performance
+- Vue 3 reactive components
+- Custom rendering with Vue SFCs
 - ANSI color support
 - Smart autocomplete with visual suggestions
+- Modular component architecture
 
 ## 📊 Technical Details
 
 - **Runtime**: Bun
 - **Build Tool**: Vite
+- **Framework**: Vue 3
 - **Language**: TypeScript
 - **Testing**: Vitest (97 tests, 100% passing)
 - **Storage**: IndexedDB
-- **UI**: Custom implementation with Pug templates
+- **UI**: Vue 3 Single File Components (SFC)
 
 ## 🤝 Contributing
 
@@ -287,6 +295,7 @@ Please ensure all tests pass before submitting a PR.
 
 - [FEATURES.md](./FEATURES.md) - Comprehensive feature documentation
 - [TESTING.md](./TESTING.md) - Testing guide and best practices
+- [MIGRATION.md](./MIGRATION.md) - Vue 3 migration notes
 
 ## 🎓 Use Cases
 
