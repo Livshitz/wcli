@@ -104,6 +104,13 @@ export class TerminalUI {
     // Hide suggestions
     this.hideSuggestions();
     
+    // Check if this is a clear command
+    if (input.trim() === 'clear') {
+      this.clear();
+      this.inputHandler.focus();
+      return;
+    }
+    
     // Add input to output
     const prompt = this.terminal.getPrompt();
     this.lineRenderer.appendLine({
