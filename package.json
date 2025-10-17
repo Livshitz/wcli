@@ -1,0 +1,28 @@
+{
+  "name": "wcli",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@vitejs/plugin-basic-ssl": "^2.1.0",
+    "@vitest/ui": "^3.2.4",
+    "happy-dom": "^20.0.5",
+    "pug": "^3.0.3",
+    "vite": "^7.1.10",
+    "vite-plugin-pug": "^0.4.1",
+    "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
