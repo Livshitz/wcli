@@ -119,6 +119,12 @@ export class InputHandler {
         break;
 
       case 'c':
+        // On Mac (metaKey), allow Cmd+C for copying if there's a selection
+        if (e.metaKey && this.inputElement.selectionStart !== this.inputElement.selectionEnd) {
+          // Let the browser handle copy
+          return;
+        }
+        // Ctrl+C always interrupts, Cmd+C only interrupts if no selection
         if (e.ctrlKey || e.metaKey) {
           e.preventDefault();
           this.handleInterrupt();
@@ -276,13 +282,25 @@ export class InputHandler {
     const beforeCursor = value.slice(0, cursorPos);
     const afterCursor = value.slice(cursorPos);
     
-    // Find the start of the word to delete
-    const match = beforeCursor.match(/\s*\S+\s*$/);
-    if (match) {
-      const newBeforeCursor = beforeCursor.slice(0, -match[0].length);
-      this.inputElement.value = newBeforeCursor + afterCursor;
-      this.inputElement.setSelectionRange(newBeforeCursor.length, newBeforeCursor.length);
+    if (beforeCursor.length === 0) return;
+    
+    // zsh/macOS Terminal behavior: Ctrl+W deletes back to word boundaries
+    // Word boundaries include whitespace and special chars like / . - etc.
+    let i = beforeCursor.length - 1;
+    
+    // Skip any trailing whitespace or delimiters
+    while (i >= 0 && /[\s/.\-_]/.test(beforeCursor[i])) {
+      i--;
     }
+    
+    // Delete until we hit a word boundary (whitespace or delimiter) or the beginning
+    while (i >= 0 && !/[\s/.\-_]/.test(beforeCursor[i])) {
+      i--;
+    }
+    
+    const newBeforeCursor = beforeCursor.slice(0, i + 1);
+    this.inputElement.value = newBeforeCursor + afterCursor;
+    this.inputElement.setSelectionRange(newBeforeCursor.length, newBeforeCursor.length);
   }
 
   private handleInterrupt(): void {
