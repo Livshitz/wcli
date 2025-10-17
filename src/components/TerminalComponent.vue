@@ -31,13 +31,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, createApp } from 'vue';
 import type { TerminalLine } from '@/types';
 import { Terminal } from '@/core/Terminal';
 import { registerBuiltInCommands } from '@/commands';
 import TerminalOutput from './TerminalOutput.vue';
 import TerminalInput from './TerminalInput.vue';
-import { IntroAnimation } from '@/ui/IntroAnimation';
+import IntroSection from './IntroSection.vue';
 
 const terminal = new Terminal();
 const outputLines = ref<TerminalLine[]>([]);
@@ -233,94 +233,18 @@ function clearTerminal() {
   terminal.clearLines();
 }
 
-async function renderWelcome() {
-  await renderIntroAnimation();
-  
-  const welcomeLines = [
-    '',
-    'A modular terminal simulator in your browser',
-    '',
-    'Keyboard Shortcuts:',
-    '  Tab           - Autocomplete commands and file paths',
-    '  ↑/↓           - Navigate command history',
-    '  Ctrl+C        - Interrupt current input (Cmd+C copies on Mac when text is selected)',
-    '  Ctrl+L        - Clear screen',
-    '  Ctrl+A/E      - Jump to beginning/end of line',
-    '  Ctrl+U/K      - Delete to beginning/end of line',
-    '  Ctrl+W        - Delete word backward',
-    '',
-    'Type "help" to see available commands, or try "cat /home/README.txt"',
-    '',
-  ];
-
-  for (const line of welcomeLines) {
-    appendLine({
-      id: generateId(),
-      type: 'output',
-      content: line,
-      timestamp: new Date(),
-    });
-  }
-}
-
-async function renderIntroAnimation() {
-  const animation = new IntroAnimation({
-    duration: 1800,
-    ditherSteps: Math.floor(1800 / 150),
-    colors: ['#39bae6', '#5ccfe6', '#59c2ff', '#d4bfff'],
-    showSideDither: true,
-  });
-
-  const animationContainer = document.createElement('div');
-  animationContainer.className = 'intro-animation';
-  
-  const { left: leftPanel, right: rightPanel } = animation.createDitherPanels();
-  
-  const logoContainer = document.createElement('div');
-  logoContainer.className = 'intro-logo-container';
-  
-  animationContainer.appendChild(leftPanel.getElement());
-  animationContainer.appendChild(logoContainer);
-  animationContainer.appendChild(rightPanel.getElement());
-  
-  // Wait for Vue to render before appending animation
-  await new Promise(resolve => setTimeout(resolve, 100));
-  
+function mountIntroSection() {
   if (outputRef.value) {
-    const container = outputRef.value.getContainer();
-    if (container) {
-      // Insert at the beginning instead of appending
-      container.insertBefore(animationContainer, container.firstChild);
+    const introSlot = outputRef.value.getIntroSlot();
+    if (introSlot) {
+      const introApp = createApp(IntroSection, {
+        onComplete: () => {
+          // Intro animation is complete
+        }
+      });
+      introApp.mount(introSlot);
     }
   }
-
-  const stopSignal = { stopped: false };
-  animation.startSideDitherAnimation(leftPanel, rightPanel, stopSignal, false);
-
-  const escapeHtml = (text: string): string => {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  };
-
-  await animation.animate(
-    (content: string, progress: number) => {
-      logoContainer.innerHTML = `<pre class="intro-logo">${escapeHtml(content)}</pre>`;
-    },
-    () => {
-      logoContainer.innerHTML = '';
-      const logoHtml = animation.getGradientLogo();
-      logoContainer.innerHTML = `<pre class="intro-logo intro-logo-final">${logoHtml}</pre>`;
-      
-      animationContainer.classList.add('intro-complete');
-      
-      setTimeout(() => {
-        animation.triggerCenterRipple();
-      }, 100);
-    }
-  );
-
-  await new Promise(resolve => setTimeout(resolve, 400));
 }
 
 async function initializeDemoFiles() {
@@ -432,8 +356,8 @@ onMounted(async () => {
     updatePrompt();
   });
   
-  await renderWelcome();
   await initializeDemoFiles();
+  mountIntroSection();
   
   updatePrompt();
   

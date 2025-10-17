@@ -1,5 +1,6 @@
 <template>
   <div ref="containerRef" class="terminal-output">
+    <div ref="introSlotRef" class="intro-slot"></div>
     <div
       v-for="line in lines"
       :key="line.id"
@@ -20,6 +21,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const containerRef = ref<HTMLElement | null>(null);
+const introSlotRef = ref<HTMLElement | null>(null);
 
 function escapeHtml(text: string): string {
   const div = document.createElement('div');
@@ -89,8 +91,13 @@ function getContainer(): HTMLElement | null {
   return containerRef.value;
 }
 
+function getIntroSlot(): HTMLElement | null {
+  return introSlotRef.value;
+}
+
 defineExpose({
   getContainer,
+  getIntroSlot,
 });
 </script>
 

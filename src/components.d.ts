@@ -7,6 +7,8 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    DitherPanel: typeof import('./components/DitherPanel.vue')['default']
+    IntroSection: typeof import('./components/IntroSection.vue')['default']
     TerminalComponent: typeof import('./components/TerminalComponent.vue')['default']
     TerminalInput: typeof import('./components/TerminalInput.vue')['default']
     TerminalOutput: typeof import('./components/TerminalOutput.vue')['default']
