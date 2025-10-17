@@ -17,6 +17,8 @@ import { historyCommand } from './history';
 import { wcCommand } from './wc';
 import { envCommand } from './env';
 import { findCommand } from './find';
+import { aliasCommand } from './alias';
+import { unaliasCommand } from './unalias';
 
 export const builtInCommands: Command[] = [
   lsCommand,
@@ -37,6 +39,8 @@ export const builtInCommands: Command[] = [
   wcCommand,
   envCommand,
   findCommand,
+  aliasCommand,
+  unaliasCommand,
 ];
 
 export function registerBuiltInCommands(executor: any): void {

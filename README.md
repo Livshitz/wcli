@@ -14,6 +14,7 @@ A fully-featured, modular terminal simulator that runs entirely in your browser.
 - 🔍 **Smart Autocomplete** - Tab completion for commands and file paths
 - 🔌 **Extensible** - Load JavaScript files as executable commands
 - 📜 **Command History** - Navigate with arrow keys
+- 🔤 **Command Aliases** - Create shortcuts for commands (like `l` for `ls`)
 - 🎨 **Modern UI** - Beautiful, responsive terminal design
 
 ## 🚀 Quick Start
@@ -58,6 +59,11 @@ rm file.txt             # Remove file
 echo "Hello World"      # Print text
 grep pattern file.txt   # Search for pattern
 wc -l file.txt         # Count lines
+
+# Aliases (built-in shortcuts)
+l                      # Same as 'ls'
+ll                     # Same as 'ls -la'
+..                     # Same as 'cd ..'
 ```
 
 ### Advanced Features
@@ -79,6 +85,12 @@ touch file1.txt ; ls           # Sequential execution
 
 # Execute JavaScript Commands
 exec /bin/demo.js "Hello!"     # Run custom command
+
+# Command Aliases
+alias                          # List all aliases
+alias ll='ls -la'              # Create new alias
+alias gs='grep --color search' # Alias with arguments
+unalias gs                     # Remove an alias
 ```
 
 ### Keyboard Shortcuts
@@ -108,7 +120,7 @@ wcli/
 │   │   ├── CommandParser.ts
 │   │   ├── CommandExecutor.ts
 │   │   └── PluginLoader.ts
-│   ├── commands/       # Built-in commands (18 total)
+│   ├── commands/       # Built-in commands (20 total)
 │   ├── ui/            # Terminal UI components
 │   ├── utils/         # Utilities (streams, paths)
 │   └── types/         # TypeScript interfaces
@@ -166,6 +178,45 @@ See [TESTING.md](./TESTING.md) for detailed testing documentation.
 | `history` | View command history |
 | `env` | Display/set environment variables |
 | `exec` | Execute JavaScript commands |
+| `alias` | Create/view command aliases |
+| `unalias` | Remove command aliases |
+
+## 🔤 Command Aliases
+
+WCLI supports command aliases just like a real shell. Several useful aliases are pre-configured:
+
+| Alias | Expands To | Description |
+|-------|-----------|-------------|
+| `l` | `ls` | Quick file listing |
+| `ll` | `ls -la` | Detailed list with hidden files |
+| `la` | `ls -a` | List all files including hidden |
+| `lt` | `ls -lt` | List sorted by time |
+| `..` | `cd ..` | Go up one directory |
+| `...` | `cd ../..` | Go up two directories |
+| `~` | `cd ~` | Go to home directory |
+| `h` | `history` | Show command history |
+| `c` | `clear` | Clear screen |
+| `cls` | `clear` | Clear screen (Windows-style) |
+
+### Managing Aliases
+
+```bash
+# View all aliases
+alias
+
+# View a specific alias
+alias l
+
+# Create a new alias
+alias gs='grep --color'
+alias proj='cd /home/projects'
+
+# Remove an alias
+unalias gs
+
+# Reset to default aliases
+unalias -a
+```
 
 ## 🔌 Creating Custom Commands
 

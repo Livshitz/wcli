@@ -104,8 +104,13 @@ export class TerminalUI {
     // Hide suggestions
     this.hideSuggestions();
     
-    // Check if this is a clear command
-    if (input.trim() === 'clear') {
+    // Resolve aliases first to check for clear command
+    const aliasManager = this.terminal.getExecutor().getAliasManager();
+    const resolvedInput = aliasManager.resolve(input.trim());
+    const commandName = resolvedInput.split(/\s+/)[0];
+    
+    // Check if this is a clear command (after alias resolution)
+    if (commandName === 'clear') {
       this.clear();
       this.inputHandler.focus();
       return;

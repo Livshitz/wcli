@@ -1,14 +1,17 @@
 import type { Command, CommandOptions, CommandResult, CommandPipeline, IFilesystem } from '@/types';
 import { StringInputStream, StringOutputStream, PipeStream, EmptyInputStream } from '@/utils/Stream';
 import { CommandParser } from './CommandParser';
+import { AliasManager } from './AliasManager';
 
 export class CommandExecutor {
   private commands: Map<string, Command> = new Map();
   private fs: IFilesystem;
   private env: Record<string, string> = {};
+  private aliasManager: AliasManager;
 
   constructor(fs: IFilesystem) {
     this.fs = fs;
+    this.aliasManager = new AliasManager();
     this.env = {
       HOME: '/home',
       PATH: '/bin',
@@ -29,8 +32,11 @@ export class CommandExecutor {
   }
 
   async execute(input: string): Promise<CommandResult> {
+    // Resolve aliases first
+    const resolvedInput = this.aliasManager.resolve(input);
+    
     const parser = new CommandParser();
-    const pipeline = parser.parse(input);
+    const pipeline = parser.parse(resolvedInput);
 
     if (pipeline.commands.length === 0) {
       return { exitCode: 0, output: '' };
@@ -135,7 +141,8 @@ export class CommandExecutor {
       env: this.env,
       fs: this.fs,
       flags,
-    };
+      aliasManager: this.aliasManager,
+    } as any;
 
     try {
       const result = await cmd.execute(args, options);
@@ -209,7 +216,8 @@ export class CommandExecutor {
                 cwd: this.fs.getCwd(),
                 env: this.env,
                 fs: this.fs,
-              };
+                aliasManager: this.aliasManager,
+              } as any;
 
               const result = await module.execute(args, options);
               return {
@@ -257,6 +265,10 @@ export class CommandExecutor {
 
   getEnv(key: string): string | undefined {
     return this.env[key];
+  }
+
+  getAliasManager(): AliasManager {
+    return this.aliasManager;
   }
 }
 
