@@ -2,7 +2,8 @@
   "name": "wcli",
   "version": "0.1.0",
   "type": "module",
-  "private": true,
+  "license": "MIT",
+  "author": "Elya Livshitz",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
