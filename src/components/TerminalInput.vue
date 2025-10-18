@@ -328,14 +328,22 @@ function deleteWord() {
   }
   
   const newBeforeCursor = beforeCursor.slice(0, i + 1);
+  const newCursorPos = newBeforeCursor.length;
   localValue.value = newBeforeCursor + afterCursor;
   
-  inputRef.value.setSelectionRange(newBeforeCursor.length, newBeforeCursor.length);
+  // Use nextTick to ensure DOM is updated before setting cursor position
+  requestAnimationFrame(() => {
+    if (inputRef.value) {
+      inputRef.value.setSelectionRange(newCursorPos, newCursorPos);
+    }
+  });
 }
 
 function handleInterrupt() {
   emit('interrupt');
   localValue.value = '';
+  historyIndex.value = history.value.length;
+  currentInput.value = '';
 }
 
 function handleClear() {
