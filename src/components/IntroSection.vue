@@ -10,6 +10,7 @@
       />
       <div ref="logoContainerRef" class="intro-logo-container">
         <pre v-if="logoContent" class="intro-logo" :class="{ 'intro-logo-final': logoFinal }" v-html="logoContent"></pre>
+        <div v-if="animationComplete" class="version-badge">v{{ version }}</div>
       </div>
       <DitherPanel 
         ref="rightPanelRef" 
@@ -35,12 +36,14 @@ import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { IntroAnimation } from '@/ui/IntroAnimation';
 import DitherPanel from './DitherPanel.vue';
 import Matrix from './Matrix.vue';
+import packageJson from '../../package.json';
 
 interface Props {
   onComplete?: () => void;
 }
 
 const props = defineProps<Props>();
+const version = packageJson.version;
 
 const leftPanelRef = ref<InstanceType<typeof DitherPanel> | null>(null);
 const rightPanelRef = ref<InstanceType<typeof DitherPanel> | null>(null);
@@ -381,6 +384,37 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
+  position: relative;
+}
+
+.version-badge {
+  position: absolute;
+  bottom: -5px;
+  right: 10px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'Courier New', monospace;
+  font-size: 10px;
+  color: var(--prompt-color);
+  opacity: 0.7;
+  padding: 2px 6px;
+  border: 1px solid rgba(57, 186, 230, 0.3);
+  border-radius: 3px;
+  background: rgba(57, 186, 230, 0.05);
+  animation: versionFadeIn 0.5s ease-out forwards;
+  animation-delay: 0.3s;
+  opacity: 0;
+  white-space: nowrap;
+  user-select: none;
+}
+
+@keyframes versionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 0.7;
+    transform: translateY(0);
+  }
 }
 
 :deep(.intro-dither-left),
@@ -495,6 +529,13 @@ onUnmounted(() => {
     letter-spacing: 0;
     padding: 5px;
     line-height: 1;
+  }
+  
+  .version-badge {
+    font-size: 8px;
+    padding: 1px 3px;
+    bottom: -10px;
+    right: 5px;
   }
   
   :deep(.intro-animation) {
