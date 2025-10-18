@@ -268,7 +268,7 @@ exports.execute = async function(args, options) {
     
     const readme = `Welcome to WCLI - Web Command Line Interface!
 
-This is a fully-featured web-based terminal simulator built with TypeScript, Vue, and Vite.
+This is a fully-featured web-based terminal built with TypeScript, Vue, and Vite.
 
 FEATURES:
 =========

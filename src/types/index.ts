@@ -1,4 +1,4 @@
-// Core interfaces for the terminal simulator
+// Core interfaces for the terminal
 
 export interface FileSystemNode {
   name: string;

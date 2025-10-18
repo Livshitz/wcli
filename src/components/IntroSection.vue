@@ -119,7 +119,7 @@ function calculateDitherWidth(): void {
 
 const welcomeLines = [
   '',
-  'A modular terminal simulator in your browser',
+  'A modular terminal in your browser',
   '',
   'Keyboard Shortcuts:',
   '  Tab           - Autocomplete commands and file paths',
