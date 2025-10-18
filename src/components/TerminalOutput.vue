@@ -6,14 +6,17 @@
       :key="line.id"
       :class="`terminal-line terminal-line-${line.type}`"
       :data-id="line.id"
-      v-html="renderLine(line)"
-    />
+    >
+      <div v-if="line.type === 'component'" :ref="el => setComponentRef(line.id, el)"></div>
+      <div v-else v-html="renderLine(line)"></div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue';
+import { ref, watch, nextTick, createApp } from 'vue';
 import type { TerminalLine } from '@/types';
+import { ComponentLoader } from '@/core/ComponentLoader';
 
 interface Props {
   lines: TerminalLine[];
@@ -22,6 +25,8 @@ interface Props {
 const props = defineProps<Props>();
 const containerRef = ref<HTMLElement | null>(null);
 const introSlotRef = ref<HTMLElement | null>(null);
+const componentRefs = new Map<string, HTMLElement>();
+const mountedApps = new Map<string, any>();
 
 function escapeHtml(text: string): string {
   const div = document.createElement('div');
@@ -76,14 +81,59 @@ function renderLine(line: TerminalLine): string {
   }
 }
 
+function setComponentRef(lineId: string, el: any) {
+  if (el) {
+    componentRefs.set(lineId, el);
+  }
+}
+
 function scrollToBottom() {
   if (containerRef.value) {
     containerRef.value.scrollTop = containerRef.value.scrollHeight;
   }
 }
 
+
+async function mountComponent(lineId: string, line: TerminalLine) {
+  if (!line.component) return;
+  
+  const element = componentRefs.get(lineId);
+  if (!element) {
+    // Element not ready yet, will retry on next watch
+    return;
+  }
+  
+  // Don't remount if already mounted
+  if (mountedApps.has(lineId)) return;
+  
+  try {
+    console.log('[TerminalOutput] Mounting component:', line.component);
+    
+    const component = await ComponentLoader.loadComponent(
+      line.component.name,
+      line.component.source,
+      line.component.url
+    );
+    
+    const app = createApp(component, line.component.props || {});
+    app.mount(element);
+    mountedApps.set(lineId, app);
+  } catch (error) {
+    console.error(`Failed to mount component for line ${lineId}:`, error);
+    element.innerHTML = `<span class="error-text">Failed to load component: ${error instanceof Error ? error.message : String(error)}</span>`;
+  }
+}
+
 watch(() => props.lines, async () => {
   await nextTick();
+  
+  // Mount any component lines
+  for (const line of props.lines) {
+    if (line.type === 'component') {
+      await mountComponent(line.id, line);
+    }
+  }
+  
   scrollToBottom();
 }, { deep: true });
 

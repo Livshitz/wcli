@@ -19,6 +19,8 @@
       />
     </div>
 
+	<!-- <Matrix :text="matrixText" :rows="10" :cols="50" :padding="4" :animateChanges="true" /> -->
+
     <!-- Welcome message -->
     <div v-if="showWelcome" class="intro-welcome">
       <div v-for="(line, idx) in welcomeLines" :key="idx" class="intro-welcome-line">
@@ -32,6 +34,7 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { IntroAnimation } from '@/ui/IntroAnimation';
 import DitherPanel from './DitherPanel.vue';
+import Matrix from './Matrix.vue';
 
 interface Props {
   onComplete?: () => void;
@@ -48,6 +51,10 @@ const logoFinal = ref(false);
 const animationComplete = ref(false);
 const showWelcome = ref(false);
 const ditherWidth = ref<number>(30);
+const matrixText = ref('heyyy');
+
+//@ts-ignore
+window.x=matrixText;
 
 const WCLI_LOGO = `
 ██╗    ██╗ ██████╗██╗     ██╗

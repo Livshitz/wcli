@@ -19,6 +19,7 @@ import { envCommand } from './env';
 import { findCommand } from './find';
 import { aliasCommand } from './alias';
 import { unaliasCommand } from './unalias';
+import { viewCommand } from './view';
 
 export const builtInCommands: Command[] = [
   lsCommand,
@@ -41,6 +42,7 @@ export const builtInCommands: Command[] = [
   findCommand,
   aliasCommand,
   unaliasCommand,
+  viewCommand,
 ];
 
 export function registerBuiltInCommands(executor: any): void {

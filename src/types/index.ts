@@ -86,9 +86,15 @@ export interface Redirect {
 
 export interface TerminalLine {
   id: string;
-  type: 'input' | 'output' | 'error' | 'prompt';
+  type: 'input' | 'output' | 'error' | 'prompt' | 'component';
   content: string;
   timestamp: Date;
+  component?: {
+    name: string;
+    props?: Record<string, any>;
+    source?: 'local' | 'remote';
+    url?: string;
+  };
 }
 
 export interface TerminalHistory {

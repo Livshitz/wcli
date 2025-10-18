@@ -61,7 +61,7 @@
 - Cycle through suggestions with repeated Tab
 - Automatic hiding on typing or submission
 
-## 📦 Built-in Commands (18 total)
+## 📦 Built-in Commands (20 total)
 
 ### File Operations
 - **ls** - List directory contents
@@ -86,6 +86,11 @@
 - **env** - Display/set environment variables
 - **find** - Search for files in directory hierarchy
 - **exec** - Execute JavaScript files as commands
+- **alias** - Create command aliases
+- **unalias** - Remove command aliases
+
+### Interactive Components
+- **view** - Render Vue components in terminal (local or remote)
 
 ## 🔧 Advanced Features
 
@@ -126,6 +131,34 @@ exports.execute = async function(args, options) {
 ```
 
 Then execute: `exec /bin/mycommand.js` or directly: `mycommand`
+
+### Interactive Vue Components
+Render rich, interactive Vue components directly in the terminal:
+
+```bash
+# Display built-in components
+view Matrix rows=15 cols=40
+view DitherPanel
+view IntroSection
+
+# Pass various prop types
+view Matrix rows=10 cols=20                      # Numbers
+view MyComponent title="Hello" enabled=true      # Strings and booleans
+view Widget config='{"theme":"dark","size":10}'  # Objects
+
+# Load remote components (experimental)
+view HelloWorld --remote /examples/HelloWorld.js
+view HelloWorld --remote /examples/HelloWorld.js message="Welcome!" textColor="#0ff"
+# Or from external URLs (must be CORS-enabled and properly formatted)
+view MyComponent --remote https://example.com/component.js
+```
+
+Components are dynamically loaded and mounted, supporting:
+- Local components (built into the app)
+- Remote components (loaded from URLs)
+- Props of any type (strings, numbers, booleans, objects, arrays)
+- Full Vue reactivity and lifecycle hooks
+- Interactive user interfaces within terminal output
 
 ## 🎨 UI Features
 

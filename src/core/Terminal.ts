@@ -47,10 +47,34 @@ export class Terminal {
       const result = await this.executor.execute(input);
       
       if (result.output) {
-        this.addLine({
-          type: 'output',
-          content: result.output,
-        });
+        // Check if output is a Vue component marker
+        const trimmedOutput = result.output.trim();
+        try {
+          const parsed = JSON.parse(trimmedOutput);
+          if (parsed.__type === 'vue-component') {
+            this.addLine({
+              type: 'component',
+              content: '',
+              component: {
+                name: parsed.name,
+                props: parsed.props || {},
+                source: parsed.source || 'local',
+                url: parsed.url,
+              },
+            });
+          } else {
+            this.addLine({
+              type: 'output',
+              content: result.output,
+            });
+          }
+        } catch {
+          // Not JSON, treat as regular output
+          this.addLine({
+            type: 'output',
+            content: result.output,
+          });
+        }
       }
       
       if (result.error) {

@@ -313,6 +313,17 @@ Advanced:
   exec /bin/demo.js Hi    - Execute a JS command
   history                 - View command history
   env                     - Show environment variables
+  
+Interactive Components:
+  view ExampleWidget                         - Interactive demo widget
+  view ExampleWidget title="Test" count=5    - With custom props
+  view Matrix rows=10 cols=20                - Display Matrix component
+  view DitherPanel                           - Display DitherPanel component
+  view Matrix --rows 15 --cols 30            - Alternative syntax with flags
+  
+Remote Components (experimental):
+  view HelloWorld --remote /examples/HelloWorld.js
+  view HelloWorld --remote /examples/HelloWorld.js message="Custom!" textColor="#ff0"
 
 Try tab completion - type "ca" and press Tab!
 

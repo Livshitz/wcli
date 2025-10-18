@@ -1,9 +1,19 @@
 <template>
-  <pre ref="panelRef" :class="`intro-dither-${position}`">{{ pattern }}</pre>
+  <Matrix
+    ref="matrixRef"
+    :rows="height"
+    :cols="width"
+    :pattern="currentFrame"
+    :chars="chars"
+    :className="`intro-dither-${position}`"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
+import Matrix from './Matrix.vue';
+import type { Frame } from '../types/matrix';
+import { noise2D } from '../utils/MatrixRenderer';
 
 interface Ripple {
   x: number;
@@ -24,40 +34,32 @@ const props = withDefaults(defineProps<Props>(), {
   chars: () => ['.', '·', '•', '●', '◉'],
 });
 
-const panelRef = ref<HTMLPreElement | null>(null);
-const pattern = ref<string>('');
-
-const DEFAULT_CHARS = ['.', '·', '•', '●', '◉'];
-const chars = props.chars || DEFAULT_CHARS;
+const matrixRef = ref<InstanceType<typeof Matrix> | null>(null);
+const currentFrame = ref<Frame>([]);
 
 let mouseX = -1000;
 let mouseY = -1000;
 let ripples: Ripple[] = [];
 let animationFrameId: number | null = null;
 
-function noise2D(x: number, y: number): number {
-  const n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
-  return n - Math.floor(n);
-}
-
-function generatePattern(
+function generateFrame(
   mouseX: number,
   mouseY: number,
   elementRect: DOMRect,
   ripples: Ripple[]
-): string {
-  const lines: string[] = [];
+): Frame {
+  const frame: Frame = [];
   const currentWidth = props.width;
   
   for (let y = 0; y < props.height; y++) {
-    let line = '';
+    frame[y] = [];
     for (let x = 0; x < currentWidth; x++) {
       const charWidth = elementRect.width / currentWidth;
       const charHeight = elementRect.height / props.height;
       const pixelX = elementRect.left + x * charWidth;
       const pixelY = elementRect.top + y * charHeight;
       
-      // Base pattern - start with dots (lower noise values)
+      // Base pattern
       const noise = noise2D(x * 0.15, y * 0.15) * 0.3;
       
       let disturbance = 0;
@@ -68,7 +70,6 @@ function generatePattern(
         const rdy = pixelY - ripple.y;
         const rippleDistance = Math.sqrt(rdx * rdx + rdy * rdy);
         
-        // Expanding ripple based on time
         const rippleMultiplier = ripple.strength || 1.0;
         const rippleRadius = (ripple.time / ripple.maxTime) * 350 * rippleMultiplier;
         const rippleWidth = 80 * rippleMultiplier;
@@ -83,24 +84,19 @@ function generatePattern(
       
       // Apply disturbance to base pattern
       const finalValue = Math.max(0, Math.min(1, noise + disturbance));
-      
-      // Map to character set
-      const charIndex = Math.floor(finalValue * chars.length);
-      const clampedIndex = Math.max(0, Math.min(charIndex, chars.length - 1));
-      
-      line += chars[clampedIndex];
+      frame[y][x] = finalValue;
     }
-    lines.push(line);
   }
   
-  return lines.join('\n');
+  return frame;
 }
 
 function render(mx: number, my: number, allRipples: Ripple[]): void {
-  if (!panelRef.value) return;
+  const element = matrixRef.value?.getElement();
+  if (!element) return;
   
-  const rect = panelRef.value.getBoundingClientRect();
-  pattern.value = generatePattern(mx, my, rect, allRipples);
+  const rect = element.getBoundingClientRect();
+  currentFrame.value = generateFrame(mx, my, rect, allRipples);
 }
 
 function updateAnimation(currentRipples: Ripple[], currentMouseX: number, currentMouseY: number) {
@@ -113,22 +109,24 @@ function updateAnimation(currentRipples: Ripple[], currentMouseX: number, curren
 defineExpose({
   render,
   updateAnimation,
-  getElement: () => panelRef.value,
+  getElement: () => matrixRef.value?.getElement(),
 });
 
 // Watch for width changes and update pattern
 watch(() => props.width, () => {
-  if (panelRef.value) {
-    const rect = panelRef.value.getBoundingClientRect();
-    pattern.value = generatePattern(mouseX, mouseY, rect, ripples);
+  const element = matrixRef.value?.getElement();
+  if (element) {
+    const rect = element.getBoundingClientRect();
+    currentFrame.value = generateFrame(mouseX, mouseY, rect, ripples);
   }
 });
 
 onMounted(() => {
   // Initial render with empty state
-  if (panelRef.value) {
-    const rect = panelRef.value.getBoundingClientRect();
-    pattern.value = generatePattern(-1000, -1000, rect, []);
+  const element = matrixRef.value?.getElement();
+  if (element) {
+    const rect = element.getBoundingClientRect();
+    currentFrame.value = generateFrame(-1000, -1000, rect, []);
   }
 });
 
