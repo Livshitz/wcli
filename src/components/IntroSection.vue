@@ -390,7 +390,7 @@ onUnmounted(() => {
 .version-badge {
   position: absolute;
   bottom: -5px;
-  right: 10px;
+  right: 22px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'Courier New', monospace;
   font-size: 10px;
   color: var(--prompt-color);
