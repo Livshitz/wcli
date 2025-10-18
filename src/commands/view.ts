@@ -3,13 +3,34 @@ import { ComponentLoader } from '@/core/ComponentLoader';
 
 export const viewCommand: Command = {
   name: 'view',
-  description: 'Display a Vue component in the terminal',
-  usage: 'view <component> [key=value]... [--remote url] | view --list',
+  description: 'Display a Vue component or HTML content in the terminal',
+  usage: 'view <component> [key=value]... [--remote url] | view --list | <command> | view [--html]',
   
   async execute(args: string[], options: CommandOptions): Promise<CommandResult> {
-    const { stdout, stderr, flags } = options;
+    const { stdout, stderr, stdin, flags } = options;
     
     try {
+      // Check if we have stdin data (piped input)
+      const stdinData = await stdin.readAll();
+      
+      // Handle --html flag or if stdin looks like HTML
+      if (flags?.html || (stdinData && stdinData.trim().startsWith('<'))) {
+        // Display HTML content using HtmlViewer component
+        const htmlContent = stdinData || '';
+        
+        const componentData = {
+          __type: 'vue-component',
+          name: 'HtmlViewer',
+          props: {
+            html: htmlContent,
+          },
+          source: 'local',
+        };
+        
+        await stdout.write(JSON.stringify(componentData) + '\n');
+        return { exitCode: 0 };
+      }
+      
       // Handle --list flag to show available components
       if (flags?.list) {
         const components = ComponentLoader.getAvailableComponents();
@@ -44,6 +65,12 @@ export const viewCommand: Command = {
           }
         }
         
+        return { exitCode: 0 };
+      }
+      
+      // If we only have stdin and no other args, just output it
+      if (stdinData && args.length === 0) {
+        await stdout.write(stdinData);
         return { exitCode: 0 };
       }
       

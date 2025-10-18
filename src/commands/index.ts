@@ -20,6 +20,7 @@ import { findCommand } from './find';
 import { aliasCommand } from './alias';
 import { unaliasCommand } from './unalias';
 import { viewCommand } from './view';
+import { curlCommand } from './curl';
 
 export const builtInCommands: Command[] = [
   lsCommand,
@@ -43,6 +44,7 @@ export const builtInCommands: Command[] = [
   aliasCommand,
   unaliasCommand,
   viewCommand,
+  curlCommand,
 ];
 
 export function registerBuiltInCommands(executor: any): void {

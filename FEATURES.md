@@ -61,7 +61,7 @@
 - Cycle through suggestions with repeated Tab
 - Automatic hiding on typing or submission
 
-## 📦 Built-in Commands (20 total)
+## 📦 Built-in Commands (22 total)
 
 ### File Operations
 - **ls** - List directory contents
@@ -79,6 +79,9 @@
 - **grep** - Search for patterns in files
 - **wc** - Count lines, words, and bytes
 
+### Network
+- **curl** - Transfer data from or to a server
+
 ### System
 - **clear** - Clear terminal screen
 - **help** - Display available commands
@@ -90,7 +93,7 @@
 - **unalias** - Remove command aliases
 
 ### Interactive Components
-- **view** - Render Vue components in terminal (local or remote)
+- **view** - Render Vue components or HTML content in terminal (local or remote)
 
 ## 🔧 Advanced Features
 
@@ -99,6 +102,8 @@
 ls | grep .js                    # Find JS files
 cat fruits.txt | grep a          # Search lines with 'a'
 find . -name "*.txt" | wc -l     # Count text files
+curl wttr.in/London              # Fetch ASCII weather
+curl --html example.com | view   # Fetch and render HTML
 ```
 
 ### Redirection Examples
@@ -146,6 +151,14 @@ view Matrix rows=10 cols=20                      # Numbers
 view MyComponent title="Hello" enabled=true      # Strings and booleans
 view Widget config='{"theme":"dark","size":10}'  # Objects
 
+# View HTML content from piped input
+curl --html example.com | view                   # Auto-detects HTML
+echo "<h1>Hello World</h1>" | view               # Renders HTML
+cat page.html | view --html                      # Force HTML mode
+
+# View specific components with HTML props
+view HtmlViewer html="<h1>Custom HTML</h1>"
+
 # Load remote components (experimental)
 view HelloWorld --remote /examples/HelloWorld.js
 view HelloWorld --remote /examples/HelloWorld.js message="Welcome!" textColor="#0ff"
@@ -156,6 +169,7 @@ view MyComponent --remote https://example.com/component.js
 Components are dynamically loaded and mounted, supporting:
 - Local components (built into the app)
 - Remote components (loaded from URLs)
+- HTML content rendering via HtmlViewer
 - Props of any type (strings, numbers, booleans, objects, arrays)
 - Full Vue reactivity and lifecycle hooks
 - Interactive user interfaces within terminal output

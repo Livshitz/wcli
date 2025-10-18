@@ -60,6 +60,10 @@ echo "Hello World"      # Print text
 grep pattern file.txt   # Search for pattern
 wc -l file.txt         # Count lines
 
+# Network
+curl wttr.in/London    # Fetch weather report
+curl --html example.com | view  # Fetch and render HTML
+
 # Aliases (built-in shortcuts)
 l                      # Same as 'ls'
 ll                     # Same as 'ls -la'
@@ -174,6 +178,7 @@ See [TESTING.md](./TESTING.md) for detailed testing documentation.
 | `grep` | Search for patterns |
 | `find` | Search for files |
 | `wc` | Count lines, words, bytes |
+| `curl` | Transfer data from or to a server |
 | `mkdir` | Create directories |
 | `touch` | Create empty files |
 | `rm` | Remove files/directories |
@@ -186,6 +191,7 @@ See [TESTING.md](./TESTING.md) for detailed testing documentation.
 | `exec` | Execute JavaScript commands |
 | `alias` | Create/view command aliases |
 | `unalias` | Remove command aliases |
+| `view` | Display Vue components or HTML content |
 
 ## 🔤 Command Aliases
 
