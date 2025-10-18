@@ -21,6 +21,7 @@ import { aliasCommand } from './alias';
 import { unaliasCommand } from './unalias';
 import { viewCommand } from './view';
 import { curlCommand } from './curl';
+import { codeCommand } from './code';
 
 export const builtInCommands: Command[] = [
   lsCommand,
@@ -45,6 +46,7 @@ export const builtInCommands: Command[] = [
   unaliasCommand,
   viewCommand,
   curlCommand,
+  codeCommand,
 ];
 
 export function registerBuiltInCommands(executor: any): void {

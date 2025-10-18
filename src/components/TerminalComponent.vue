@@ -358,11 +358,19 @@ function focusInput() {
 function setupGlobalKeyBindings() {
   document.addEventListener('keydown', (e) => {
     // Focus on input when typing any character (excluding special keys)
-    // But only if the input is not already focused
+    // But only if the input is not already focused or we're in another editor
     const activeElement = document.activeElement;
     const isInputFocused = activeElement && activeElement.tagName === 'INPUT';
+    const isTextareaFocused = activeElement && activeElement.tagName === 'TEXTAREA';
     
-    if (!isInputFocused) {
+    // Check if we're inside a code editor or any contenteditable element
+    const isInEditor = activeElement && (
+      activeElement.closest('.code-editor-wrapper') ||
+      activeElement.closest('.cm-editor') ||
+      activeElement.closest('[contenteditable="true"]')
+    );
+    
+    if (!isInputFocused && !isTextareaFocused && !isInEditor) {
       // Focus on printable characters or common editing keys
       if (e.key.length === 1 || ['Backspace', 'Delete'].includes(e.key)) {
         focusInput();
