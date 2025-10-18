@@ -1,5 +1,14 @@
 import type { Command, CommandOptions, CommandResult } from '@/types';
 
+// Helper function to count lines, words, and bytes in text
+function countText(text: string): { lines: number; words: number; bytes: number } {
+  const lines = text.split('\n').length - (text.endsWith('\n') ? 1 : 0);
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const bytes = new Blob([text]).size;
+  
+  return { lines, words, bytes };
+}
+
 export const wcCommand: Command = {
   name: 'wc',
   description: 'Print newline, word, and byte counts',
@@ -24,7 +33,7 @@ export const wcCommand: Command = {
       // If no files specified, read from stdin
       if (args.length === 0) {
         const input = await stdin.readAll();
-        const { lines, words, bytes } = this.countText(input);
+        const { lines, words, bytes } = countText(input);
         
         let output = '';
         if (onlyLines || showLines) output += lines.toString().padStart(8);
@@ -50,7 +59,7 @@ export const wcCommand: Command = {
         }
         
         const content = await fs.readFile(resolvedPath);
-        const counts = this.countText(content);
+        const counts = countText(content);
         
         results.push({ ...counts, name: file });
         totalLines += counts.lines;
@@ -86,13 +95,4 @@ export const wcCommand: Command = {
       return { exitCode: 1 };
     }
   },
-  
-  countText(text: string): { lines: number; words: number; bytes: number } {
-    const lines = text.split('\n').length - (text.endsWith('\n') ? 1 : 0);
-    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-    const bytes = new Blob([text]).size;
-    
-    return { lines, words, bytes };
-  },
 };
-

@@ -2,6 +2,8 @@ import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
 
+const isLibraryBuild = process.env.BUILD_MODE === 'lib' || process.argv.includes('--config');
+
 export default defineConfig({
   plugins: [
     vue(),
@@ -12,7 +14,29 @@ export default defineConfig({
     host: '0.0.0.0',
     allowedHosts: ['.local'],
   },
-  build: {
+  build: isLibraryBuild ? {
+    // Library build configuration
+    outDir: 'dist',
+    sourcemap: true,
+    lib: {
+      entry: resolve(__dirname, 'src/index.ts'),
+      name: 'WCLI',
+      fileName: (format) => `wcli.${format}.js`,
+      formats: ['es', 'umd'],
+    },
+    rollupOptions: {
+      // Externalize dependencies that shouldn't be bundled
+      external: ['vue'],
+      output: {
+        globals: {
+          vue: 'Vue',
+        },
+        // Preserve directory structure for subpath exports
+        preserveModules: false,
+      },
+    },
+  } : {
+    // Demo/dev build configuration
     outDir: 'dist',
     sourcemap: true,
     rollupOptions: {

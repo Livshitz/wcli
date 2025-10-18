@@ -1,5 +1,43 @@
 import type { Command, CommandOptions, CommandResult } from '@/types';
 
+// Helper function for recursive directory search
+async function searchDirectory(
+  basePath: string,
+  currentPath: string,
+  namePattern: RegExp | null,
+  stdout: any,
+  fs: any
+): Promise<void> {
+  // Get display path (relative to base)
+  const displayPath = currentPath === basePath ? '.' : currentPath.slice(basePath.length + 1);
+  
+  if (!(await fs.isDirectory(currentPath))) {
+    return;
+  }
+  
+  // Check if current directory matches
+  if (!namePattern || namePattern.test(displayPath.split('/').pop() || '')) {
+    await stdout.write(displayPath + '\n');
+  }
+  
+  // Search entries
+  const entries = await fs.readDir(currentPath);
+  
+  for (const entry of entries) {
+    const entryPath = currentPath === '/' ? `/${entry}` : `${currentPath}/${entry}`;
+    const entryDisplayPath = displayPath === '.' ? entry : `${displayPath}/${entry}`;
+    
+    if (await fs.isDirectory(entryPath)) {
+      await searchDirectory(basePath, entryPath, namePattern, stdout, fs);
+    } else {
+      // Check if file matches pattern
+      if (!namePattern || namePattern.test(entry)) {
+        await stdout.write(entryDisplayPath + '\n');
+      }
+    }
+  }
+}
+
 export const findCommand: Command = {
   name: 'find',
   description: 'Search for files in directory hierarchy',
@@ -30,7 +68,7 @@ export const findCommand: Command = {
       }
       
       // Search recursively
-      await this.searchDirectory(resolvedPath, resolvedPath, namePattern, stdout, fs);
+      await searchDirectory(resolvedPath, resolvedPath, namePattern, stdout, fs);
       
       return { exitCode: 0 };
     } catch (error) {
@@ -38,42 +76,4 @@ export const findCommand: Command = {
       return { exitCode: 1 };
     }
   },
-  
-  async searchDirectory(
-    basePath: string,
-    currentPath: string,
-    namePattern: RegExp | null,
-    stdout: any,
-    fs: any
-  ): Promise<void> {
-    // Get display path (relative to base)
-    const displayPath = currentPath === basePath ? '.' : currentPath.slice(basePath.length + 1);
-    
-    if (!(await fs.isDirectory(currentPath))) {
-      return;
-    }
-    
-    // Check if current directory matches
-    if (!namePattern || namePattern.test(displayPath.split('/').pop() || '')) {
-      await stdout.write(displayPath + '\n');
-    }
-    
-    // Search entries
-    const entries = await fs.readDir(currentPath);
-    
-    for (const entry of entries) {
-      const entryPath = currentPath === '/' ? `/${entry}` : `${currentPath}/${entry}`;
-      const entryDisplayPath = displayPath === '.' ? entry : `${displayPath}/${entry}`;
-      
-      if (await fs.isDirectory(entryPath)) {
-        await this.searchDirectory(basePath, entryPath, namePattern, stdout, fs);
-      } else {
-        // Check if file matches pattern
-        if (!namePattern || namePattern.test(entry)) {
-          await stdout.write(entryDisplayPath + '\n');
-        }
-      }
-    }
-  },
 };
-

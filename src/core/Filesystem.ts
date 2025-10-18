@@ -1,14 +1,16 @@
 import type { FileSystemNode, FileMetadata, IFilesystem } from '@/types';
+import type { IStorageAdapter } from './IStorageAdapter';
 import { PathResolver } from '@/utils/PathResolver';
+import { IndexedDBAdapter } from '@/adapters/IndexedDBAdapter';
 
 export class VirtualFilesystem implements IFilesystem {
   private root: FileSystemNode;
   private cwd: string = '/';
-  private dbName = 'wcli-fs';
-  private storeName = 'filesystem';
+  private storage: IStorageAdapter;
 
-  constructor() {
+  constructor(storage?: IStorageAdapter) {
     this.root = this.createNode('/', 'directory');
+    this.storage = storage || new IndexedDBAdapter('wcli-fs', 'filesystem');
   }
 
   private createNode(name: string, type: 'file' | 'directory', content: string = ''): FileSystemNode {
@@ -209,23 +211,7 @@ export class VirtualFilesystem implements IFilesystem {
     return node?.type || null;
   }
 
-  // Persistence using IndexedDB
-  private async openDB(): Promise<IDBDatabase> {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, 1);
-      
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result);
-      
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-        if (!db.objectStoreNames.contains(this.storeName)) {
-          db.createObjectStore(this.storeName);
-        }
-      };
-    });
-  }
-
+  // Persistence using storage adapter
   private serializeNode(node: FileSystemNode): any {
     return {
       name: node.name,
@@ -256,21 +242,12 @@ export class VirtualFilesystem implements IFilesystem {
 
   async persist(): Promise<void> {
     try {
-      const db = await this.openDB();
-      const transaction = db.transaction([this.storeName], 'readwrite');
-      const store = transaction.objectStore(this.storeName);
-      
       const data = {
         root: this.serializeNode(this.root),
         cwd: this.cwd,
       };
       
-      store.put(data, 'filesystem');
-      
-      return new Promise((resolve, reject) => {
-        transaction.oncomplete = () => resolve();
-        transaction.onerror = () => reject(transaction.error);
-      });
+      await this.storage.save('filesystem', data);
     } catch (error) {
       console.error('Failed to persist filesystem:', error);
     }
@@ -278,15 +255,7 @@ export class VirtualFilesystem implements IFilesystem {
 
   async load(): Promise<void> {
     try {
-      const db = await this.openDB();
-      const transaction = db.transaction([this.storeName], 'readonly');
-      const store = transaction.objectStore(this.storeName);
-      const request = store.get('filesystem');
-      
-      const data = await new Promise<any>((resolve, reject) => {
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
+      const data = await this.storage.load('filesystem');
       
       if (data) {
         this.root = this.deserializeNode(data.root);

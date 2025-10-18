@@ -1,5 +1,7 @@
 // Core interfaces for the terminal
 
+export * from './config';
+
 export interface FileSystemNode {
   name: string;
   type: 'file' | 'directory';

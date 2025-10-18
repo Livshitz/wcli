@@ -1,17 +1,57 @@
 {
   "name": "wcli",
-  "version": "0.2.1",
+  "version": "2.0.0",
   "type": "module",
   "license": "MIT",
   "author": "Elya Livshitz",
+  "description": "Extensible web-based terminal/CLI framework with Vue 3, TypeScript, and virtual filesystem",
+  "keywords": [
+    "terminal",
+    "cli",
+    "web-terminal",
+    "virtual-filesystem",
+    "vue3",
+    "typescript",
+    "command-line"
+  ],
+  "main": "./dist/wcli.umd.js",
+  "module": "./dist/wcli.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/wcli.es.js",
+      "require": "./dist/wcli.umd.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js"
+    },
+    "./adapters": {
+      "types": "./dist/adapters/index.d.ts",
+      "import": "./dist/adapters/index.js"
+    },
+    "./themes": {
+      "types": "./dist/themes/index.d.ts",
+      "import": "./dist/themes/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && tsc --emitDeclarationOnly --outDir dist",
+    "build:lib": "vite build --config vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@types/bun": "latest",

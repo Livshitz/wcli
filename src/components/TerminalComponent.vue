@@ -32,14 +32,35 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, createApp } from 'vue';
-import type { TerminalLine } from '@/types';
+import type { TerminalLine, WCLIConfig } from '@/types';
 import { Terminal } from '@/core/Terminal';
-import { registerBuiltInCommands } from '@/commands';
 import TerminalOutput from './TerminalOutput.vue';
 import TerminalInput from './TerminalInput.vue';
 import IntroSection from './IntroSection.vue';
 
-const terminal = new Terminal();
+// Props
+const props = defineProps<{
+  /**
+   * External terminal instance (optional)
+   * If not provided, a new terminal will be created
+   */
+  terminal?: Terminal;
+  
+  /**
+   * Configuration for creating a new terminal
+   * Only used if terminal prop is not provided
+   */
+  config?: WCLIConfig;
+}>();
+
+// Use provided terminal or create a new one
+const terminal = props.terminal || new Terminal(props.config);
+
+// Expose terminal instance for parent access
+defineExpose({
+  terminal,
+  getTerminal: () => terminal,
+});
 const outputLines = ref<TerminalLine[]>([]);
 const inputValue = ref('');
 const currentPrompt = ref('');
@@ -384,8 +405,7 @@ onMounted(async () => {
   
   await terminal.initialize();
   
-  registerBuiltInCommands(terminal.getExecutor());
-  
+  // Commands are now auto-registered via config in Terminal constructor
   const helpCommand = terminal.getExecutor().getCommand('help');
   if (helpCommand) {
     const originalExecute = helpCommand.execute;

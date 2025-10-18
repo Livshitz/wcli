@@ -16,11 +16,12 @@ export const aliasCommand: Command = {
 
     // If no arguments, display all aliases
     if (args.length === 0) {
-      const aliases = aliasManager.getAll();
+      const aliases: Map<string, string> = aliasManager.getAll();
       if (aliases.size === 0) {
         await stdout.write('No aliases defined\n');
       } else {
-        const sorted = Array.from(aliases.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+        const entries = Array.from(aliases.entries());
+        const sorted = entries.sort((a, b) => a[0].localeCompare(b[0]));
         for (const [name, value] of sorted) {
           await stdout.write(`alias ${name}='${value}'\n`);
         }

@@ -56,6 +56,13 @@ export class AliasManager {
   }
 
   /**
+   * Set an alias (alternative name for set)
+   */
+  setAlias(alias: string, command: string): void {
+    this.set(alias, command);
+  }
+
+  /**
    * Remove an alias
    */
   unset(alias: string): boolean {

@@ -1,29 +1,98 @@
 # WCLI - Web Command Line Interface
 
-A fully-featured, modular terminal that runs entirely in your browser. Built with Vue 3, TypeScript, and Vite.
+A fully-featured, extensible terminal framework for the web. Build powerful terminal-based applications with Vue 3, TypeScript, and complete customization.
 
 [![Tests](https://img.shields.io/badge/tests-97%20passing-brightgreen)]() [![Vue](https://img.shields.io/badge/Vue-3.5-4FC08D)]() [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)]() [![License](https://img.shields.io/badge/license-MIT-blue)]()
 
+**Version 2.0** - Now a proper extensible library! 🎉
+
 ## ✨ Features
 
+### Core Features
 - 🖥️ **Custom Terminal UI** - No external terminal libraries, built from scratch
-- 💾 **Virtual Filesystem** - Persistent storage using IndexedDB
+- 💾 **Virtual Filesystem** - Persistent storage with pluggable backends
 - 🔗 **Command Piping** - Real stream-based I/O (`ls | grep test`)
 - 📝 **File Redirection** - Output to files (`echo "text" > file.txt`)
 - ⌨️ **Native Shortcuts** - All standard terminal keyboard shortcuts
 - 🔍 **Smart Autocomplete** - Tab completion for commands and file paths
 - 🔌 **Extensible** - Load JavaScript files as executable commands
 - 📜 **Command History** - Navigate with arrow keys
-- 🔤 **Command Aliases** - Create shortcuts for commands (like `l` for `ls`)
-- 🎨 **Modern UI** - Beautiful, responsive terminal design
+- 🔤 **Command Aliases** - Create shortcuts for commands
+
+### v2.0 Library Features
+- 🔧 **Configuration-Based** - Simple, powerful configuration object
+- 💿 **Storage Adapters** - IndexedDB, LocalStorage, Memory, or custom
+- 🎯 **Lifecycle Hooks** - Hook into command execution, filesystem changes
+- 🎨 **Theme System** - Built-in themes or custom CSS variables
+- 📦 **NPM Package** - Import as a library in any Vue 3 project
+- 🧩 **Composable Components** - Use full terminal or individual components
+- 💼 **Session Management** - Save/load terminal state
+- 📊 **History API** - Programmatic access to command history
+- 🔐 **Multi-User Ready** - Per-user storage and sessions
+
+## 📦 Installation
+
+```bash
+npm install wcli
+# or
+yarn add wcli
+# or
+pnpm add wcli
+```
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### As a Library
 
-- [Bun](https://bun.sh) installed on your system
+```vue
+<script setup>
+import { TerminalComponent } from 'wcli/components';
+</script>
 
-### Installation
+<template>
+  <TerminalComponent />
+</template>
+```
+
+That's it! You now have a fully functional terminal.
+
+### With Custom Configuration
+
+```typescript
+import { Terminal } from 'wcli';
+import type { Command } from 'wcli';
+
+// Define custom command
+const myCommand: Command = {
+  name: 'hello',
+  description: 'Say hello',
+  usage: 'hello [name]',
+  async execute(args, options) {
+    const name = args[0] || 'World';
+    await options.stdout.write(`Hello, ${name}!\n`);
+    return { exitCode: 0 };
+  },
+};
+
+// Create terminal with config
+const terminal = new Terminal({
+  commands: [myCommand],
+  includeDefaultCommands: true,
+  hooks: {
+    afterCommand: (input, output) => {
+      console.log('Command executed:', input);
+    },
+  },
+  env: {
+    USER: 'alice',
+    HOME: '/home/alice',
+  },
+});
+
+await terminal.initialize();
+```
+
+### Standalone Development
 
 ```bash
 # Clone the repository
@@ -31,15 +100,194 @@ git clone https://github.com/yourusername/wcli.git
 cd wcli
 
 # Install dependencies
-bun install
+bun install  # or npm install
 
 # Start development server
-bun run dev
+bun run dev  # or npm run dev
 ```
 
 The terminal will open at `http://localhost:3000`
 
-## 📖 Usage
+## 🎯 Library API
+
+### Terminal Configuration
+
+```typescript
+interface WCLIConfig {
+  // Storage
+  storageAdapter?: IStorageAdapter;         // Custom storage backend
+  
+  // Commands
+  commands?: Command[];                     // Custom commands
+  includeDefaultCommands?: boolean;         // Include built-in commands (default: true)
+  
+  // Managers
+  sessionManager?: ISessionManager;         // Custom session manager
+  historyManager?: IHistoryManager;         // Custom history manager
+  
+  // Customization
+  components?: ComponentConfig;             // Custom UI components
+  theme?: ThemeConfig;                      // Theme configuration
+  hooks?: HookConfig;                       // Lifecycle hooks
+  
+  // Environment
+  env?: Record<string, string>;             // Initial environment variables
+  initialPath?: string;                     // Starting directory (default: '/home')
+  autoSaveSession?: boolean;                // Auto-save on changes (default: true)
+}
+```
+
+### Storage Adapters
+
+```typescript
+// Use IndexedDB (default)
+import { IndexedDBAdapter } from 'wcli/adapters';
+const terminal = new Terminal({
+  storageAdapter: new IndexedDBAdapter('my-app-db'),
+});
+
+// Use LocalStorage
+import { LocalStorageAdapter } from 'wcli/adapters';
+const terminal = new Terminal({
+  storageAdapter: new LocalStorageAdapter('my-app:'),
+});
+
+// Use Memory (no persistence)
+import { MemoryAdapter } from 'wcli/adapters';
+const terminal = new Terminal({
+  storageAdapter: new MemoryAdapter(),
+});
+
+// Implement custom adapter
+class APIAdapter implements IStorageAdapter {
+  async save(key: string, data: any) { /* ... */ }
+  async load(key: string) { /* ... */ }
+  async remove(key: string) { /* ... */ }
+  async list() { /* ... */ }
+}
+```
+
+### Lifecycle Hooks
+
+```typescript
+const terminal = new Terminal({
+  hooks: {
+    beforeInit: async () => {
+      console.log('Terminal initializing...');
+    },
+    afterInit: async () => {
+      console.log('Terminal ready!');
+    },
+    beforeCommand: async (input) => {
+      console.log('Executing:', input);
+    },
+    afterCommand: async (input, output) => {
+      // Analytics, logging, etc.
+    },
+    commandError: async (input, error) => {
+      // Error reporting
+    },
+    filesystemChange: async (operation, path) => {
+      console.log(`Filesystem ${operation}:`, path);
+    },
+  },
+});
+```
+
+### Session Management
+
+```typescript
+// Save current session
+await terminal.saveSession();
+
+// Load saved session
+const loaded = await terminal.loadSession();
+
+// Clear session
+await terminal.clearSession();
+
+// Access history
+const history = terminal.getHistoryManager();
+const allCommands = history.getAll();
+const lastCommand = history.getPrevious();
+```
+
+### Themes
+
+```typescript
+import { applyTheme, darkTheme, draculaTheme, nordTheme } from 'wcli/themes';
+
+// Apply built-in theme
+applyTheme(darkTheme);
+
+// Apply custom theme
+applyTheme({
+  colors: {
+    background: '#1a1a1a',
+    foreground: '#ffffff',
+    prompt: '#00ff00',
+  },
+  font: {
+    family: 'Monaco, monospace',
+    size: 14,
+  },
+});
+```
+
+### Component Composition
+
+```vue
+<template>
+  <!-- Full terminal component -->
+  <TerminalComponent :config="config" />
+  
+  <!-- Or compose individual components -->
+  <div class="custom-layout">
+    <Sidebar @command="terminal.executeCommand" />
+    <TerminalOutput :lines="outputLines" />
+    <TerminalInput 
+      v-model="input"
+      :prompt="prompt"
+      @submit="handleSubmit"
+    />
+  </div>
+</template>
+
+<script setup>
+import { Terminal } from 'wcli';
+import { TerminalComponent, TerminalOutput, TerminalInput } from 'wcli/components';
+
+const terminal = new Terminal();
+await terminal.initialize();
+</script>
+```
+
+### Custom Commands
+
+```typescript
+import type { Command } from 'wcli';
+
+const deployCommand: Command = {
+  name: 'deploy',
+  description: 'Deploy application',
+  usage: 'deploy [environment]',
+  async execute(args, options) {
+    const env = args[0] || 'staging';
+    await options.stdout.write(`Deploying to ${env}...\n`);
+    
+    // Your deployment logic
+    
+    await options.stdout.write('✅ Deployment complete!\n');
+    return { exitCode: 0 };
+  },
+};
+
+const terminal = new Terminal({
+  commands: [deployCommand],
+});
+```
+
+## 📖 Command Usage
 
 ### Basic Commands
 
@@ -299,27 +547,80 @@ Please ensure all tests pass before submitting a PR.
 
 ## 📝 Documentation
 
+- [MIGRATION.md](./MIGRATION.md) - **v1.x → v2.0 migration guide**
 - [FEATURES.md](./FEATURES.md) - Comprehensive feature documentation
 - [TESTING.md](./TESTING.md) - Testing guide and best practices
-- [MIGRATION.md](./MIGRATION.md) - Vue 3 migration notes
+- [examples/](./examples/) - Working code examples
+
+## 📚 Examples
+
+### Running Examples
+
+See **[EXAMPLES.md](./EXAMPLES.md)** for detailed instructions on running examples.
+
+**Quick start:**
+```bash
+cd examples/demo-app
+bun install
+bun run dev
+```
+
+### Available Examples
+
+- **[demo-app/](./examples/demo-app/)** - **Runnable demo** showing basic usage
+- **[basic/](./examples/basic/)** - Code reference for minimal setup
+- **[custom-storage/](./examples/custom-storage/)** - Custom storage adapter with API backend
+- **[custom-commands/](./examples/custom-commands/)** - Adding custom commands and lifecycle hooks
+
+More examples coming soon:
+- Multi-user sessions
+- Custom UI components  
+- Theme customization
+- Session management
 
 ## 🎓 Use Cases
 
-- **Education**: Learn Unix/Linux commands in a safe environment
-- **Development**: Quick terminal for web-based IDEs
-- **Demos**: Showcase command-line tools in the browser
-- **Prototyping**: Test shell scripts without a backend
-- **Fun**: Experiment with a fully-featured terminal in your browser!
+### For Developers
+- **Terminal-as-a-Service**: Build multi-tenant terminal applications
+- **Development Tools**: Create custom CLI tools for your applications
+- **Internal Tools**: Admin panels, deployment dashboards, log viewers
+- **IDE Integration**: Embed terminals in web-based IDEs
+
+### For Education
+- **Interactive Tutorials**: Teach Unix/Linux commands safely
+- **Coding Platforms**: Provide terminals in educational platforms
+- **Documentation**: Interactive command examples
+
+### For Fun
+- **Browser Games**: Terminal-based games and interactive fiction
+- **Retro Aesthetics**: 80s/90s terminal UIs
+- **Art Projects**: Creative coding with terminal interfaces
 
 ## 🗺️ Roadmap
 
+### v2.0 (Current) ✅
+- [x] Configuration-based architecture
+- [x] Storage adapters (IndexedDB, LocalStorage, Memory, Custom)
+- [x] Session management
+- [x] History API
+- [x] Lifecycle hooks
+- [x] Theme system
+- [x] NPM package
+- [x] Component composition
+
+### v2.1 (Next)
 - [ ] Backend integration support (WebSocket command execution)
-- [ ] Themes and customization
-- [ ] More built-in commands
+- [ ] More built-in themes
+- [ ] Advanced component customization
+- [ ] Plugin system for commands
+- [ ] Better mobile support
+
+### Future
 - [ ] Terminal multiplexing (tabs/splits)
 - [ ] SSH client integration
-- [ ] Package manager for commands
 - [ ] Session recording and playback
+- [ ] Collaborative terminals
+- [ ] Performance optimizations
 
 ## 📄 License
 
