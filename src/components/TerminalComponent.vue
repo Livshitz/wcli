@@ -346,6 +346,31 @@ grape`;
   }
 }
 
+function focusInput() {
+  if (inputRef.value && inputRef.value.$el) {
+    const input = inputRef.value.$el.querySelector('input');
+    if (input) {
+      input.focus();
+    }
+  }
+}
+
+function setupGlobalKeyBindings() {
+  document.addEventListener('keydown', (e) => {
+    // Focus on input when typing any character (excluding special keys)
+    // But only if the input is not already focused
+    const activeElement = document.activeElement;
+    const isInputFocused = activeElement && activeElement.tagName === 'INPUT';
+    
+    if (!isInputFocused) {
+      // Focus on printable characters or common editing keys
+      if (e.key.length === 1 || ['Backspace', 'Delete'].includes(e.key)) {
+        focusInput();
+      }
+    }
+  });
+}
+
 onMounted(async () => {
   preventPinchZoom();
   
@@ -371,6 +396,8 @@ onMounted(async () => {
   mountIntroSection();
   
   updatePrompt();
+  
+  setupGlobalKeyBindings();
   
   (window as any).terminal = terminal;
 });

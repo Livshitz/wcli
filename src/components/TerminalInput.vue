@@ -34,11 +34,37 @@ const emit = defineEmits<Emits>();
 
 const inputRef = ref<HTMLInputElement | null>(null);
 const localValue = ref(props.modelValue);
-const history = ref<string[]>([]);
-const historyIndex = ref(-1);
+const history = ref<string[]>(loadHistoryFromStorage());
+const historyIndex = ref(history.value.length); // Initialize to end of history
 const currentInput = ref('');
 const lastSuggestions = ref<string[]>([]);
 const suggestionIndex = ref(0);
+
+const HISTORY_STORAGE_KEY = 'wcli_command_history';
+const MAX_HISTORY_SIZE = 1000;
+
+// Detect macOS to handle cmd vs ctrl properly
+const isMac = typeof navigator !== 'undefined' && /Mac|iPad|iPhone|iPod/.test(navigator.platform);
+
+function loadHistoryFromStorage(): string[] {
+  try {
+    const stored = localStorage.getItem(HISTORY_STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.error('Failed to load history from localStorage:', error);
+  }
+  return [];
+}
+
+function saveHistoryToStorage() {
+  try {
+    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history.value));
+  } catch (error) {
+    console.error('Failed to save history to localStorage:', error);
+  }
+}
 
 watch(localValue, (newValue) => {
   emit('update:modelValue', newValue);
@@ -80,12 +106,27 @@ function handleKeyDown(e: KeyboardEvent) {
       break;
 
     case 'c':
-      if (e.metaKey && inputRef.value && inputRef.value.selectionStart !== inputRef.value.selectionEnd) {
-        return;
-      }
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        handleInterrupt();
+      // On Mac: Cmd+C = copy (allow browser default), Ctrl+C = interrupt
+      // On other platforms: Ctrl+C = interrupt (no Cmd key)
+      if (isMac) {
+        // On Mac, allow Cmd+C to copy if text is selected
+        if (e.metaKey && inputRef.value && inputRef.value.selectionStart !== inputRef.value.selectionEnd) {
+          return; // Let browser handle copy
+        }
+        // On Mac, Ctrl+C interrupts
+        if (e.ctrlKey) {
+          e.preventDefault();
+          handleInterrupt();
+        }
+      } else {
+        // On non-Mac, Ctrl+C interrupts unless text is selected
+        if (e.ctrlKey) {
+          if (inputRef.value && inputRef.value.selectionStart !== inputRef.value.selectionEnd) {
+            return; // Let browser handle copy
+          }
+          e.preventDefault();
+          handleInterrupt();
+        }
       }
       break;
 
@@ -97,10 +138,27 @@ function handleKeyDown(e: KeyboardEvent) {
       break;
 
     case 'a':
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        if (inputRef.value) {
-          inputRef.value.setSelectionRange(0, 0);
+      // On Mac: Cmd+A = select all (browser default), Ctrl+A = move to start
+      // On other platforms: Ctrl+A = move to start
+      if (isMac) {
+        // On Mac, allow Cmd+A to select all
+        if (e.metaKey) {
+          return; // Let browser handle select all
+        }
+        // Ctrl+A moves to start
+        if (e.ctrlKey) {
+          e.preventDefault();
+          if (inputRef.value) {
+            inputRef.value.setSelectionRange(0, 0);
+          }
+        }
+      } else {
+        // On non-Mac, Ctrl+A moves to start
+        if (e.ctrlKey) {
+          e.preventDefault();
+          if (inputRef.value) {
+            inputRef.value.setSelectionRange(0, 0);
+          }
         }
       }
       break;
@@ -151,6 +209,14 @@ function handleSubmit() {
   if (input) {
     if (history.value.length === 0 || history.value[history.value.length - 1] !== input) {
       history.value.push(input);
+      
+      // Limit history size
+      if (history.value.length > MAX_HISTORY_SIZE) {
+        history.value = history.value.slice(-MAX_HISTORY_SIZE);
+      }
+      
+      // Save to localStorage
+      saveHistoryToStorage();
     }
     emit('submit');
   }

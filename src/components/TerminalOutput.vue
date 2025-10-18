@@ -1,5 +1,5 @@
 <template>
-  <div ref="containerRef" class="terminal-output">
+  <div ref="containerRef" class="terminal-output" @scroll="handleScroll">
     <div ref="introSlotRef" class="intro-slot"></div>
     <div
       v-for="line in lines"
@@ -27,6 +27,9 @@ const containerRef = ref<HTMLElement | null>(null);
 const introSlotRef = ref<HTMLElement | null>(null);
 const componentRefs = new Map<string, HTMLElement>();
 const mountedApps = new Map<string, any>();
+const userHasScrolledUp = ref(false);
+const scrollCheckTimeout = ref<number | null>(null);
+const isAddingContent = ref(false);
 
 function escapeHtml(text: string): string {
   const div = document.createElement('div');
@@ -87,10 +90,44 @@ function setComponentRef(lineId: string, el: any) {
   }
 }
 
-function scrollToBottom() {
-  if (containerRef.value) {
-    containerRef.value.scrollTop = containerRef.value.scrollHeight;
+function isScrolledToBottom(): boolean {
+  if (!containerRef.value) return true;
+  const threshold = 250; // pixels from bottom - increased for better UX
+  const { scrollTop, scrollHeight, clientHeight } = containerRef.value;
+  return scrollHeight - scrollTop - clientHeight < threshold;
+}
+
+function handleScroll() {
+  if (!containerRef.value) return;
+  
+  // Ignore scroll events while we're adding content
+  if (isAddingContent.value) return;
+  
+  // Clear existing timeout
+  if (scrollCheckTimeout.value !== null) {
+    clearTimeout(scrollCheckTimeout.value);
   }
+  
+  // Check if user has scrolled up
+  userHasScrolledUp.value = !isScrolledToBottom();
+  
+  // Reset flag after a delay if user scrolls back to bottom
+  if (!userHasScrolledUp.value) {
+    scrollCheckTimeout.value = window.setTimeout(() => {
+      userHasScrolledUp.value = false;
+    }, 100);
+  }
+}
+
+function scrollToBottom() {
+  if (!containerRef.value) return;
+  
+  // Use requestAnimationFrame to ensure DOM has painted
+  requestAnimationFrame(() => {
+    if (containerRef.value) {
+      containerRef.value.scrollTop = containerRef.value.scrollHeight;
+    }
+  });
 }
 
 
@@ -124,17 +161,43 @@ async function mountComponent(lineId: string, line: TerminalLine) {
   }
 }
 
-watch(() => props.lines, async () => {
+watch(() => props.lines, async (newLines, oldLines) => {
+  // Set flag to ignore scroll events while adding content
+  isAddingContent.value = true;
+  
+  // Check if user is at bottom BEFORE content changes
+  const wasAtBottom = isScrolledToBottom();
+  
   await nextTick();
   
   // Mount any component lines
-  for (const line of props.lines) {
+  for (const line of newLines) {
     if (line.type === 'component') {
       await mountComponent(line.id, line);
     }
   }
   
-  scrollToBottom();
+  // Wait another tick to ensure all DOM updates are complete
+  await nextTick();
+  
+  // Auto-scroll if user was at bottom before new content, or if they haven't intentionally scrolled up
+  if (wasAtBottom || !userHasScrolledUp.value) {
+    // Double requestAnimationFrame to ensure browser has fully rendered
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (containerRef.value) {
+          containerRef.value.scrollTop = containerRef.value.scrollHeight;
+        }
+      });
+    });
+    // Reset the flag since we're auto-scrolling
+    userHasScrolledUp.value = false;
+  }
+  
+  // Allow scroll events again after a small delay
+  setTimeout(() => {
+    isAddingContent.value = false;
+  }, 150);
 }, { deep: true });
 
 function getContainer(): HTMLElement | null {
