@@ -8,6 +8,8 @@ export { PluginLoader } from './core/PluginLoader';
 export { EventEmitter } from './core/EventEmitter';
 export { DefaultSessionManager } from './core/DefaultSessionManager';
 export { DefaultHistoryManager } from './core/DefaultHistoryManager';
+export { PromptManager } from './core/PromptManager';
+export type { PromptOptions, PromptRequest } from './core/PromptManager';
 
 // Storage adapters
 export * from './adapters';

@@ -18,6 +18,7 @@ A fully-featured, extensible terminal framework for the web. Build powerful term
 - 🔌 **Extensible** - Load JavaScript files as executable commands
 - 📜 **Command History** - Navigate with arrow keys
 - 🔤 **Command Aliases** - Create shortcuts for commands
+- 💬 **Interactive Prompts** - Collect user input with validation and masking
 
 ### v2.0 Library Features
 - 🔧 **Configuration-Based** - Simple, powerful configuration object
@@ -287,6 +288,68 @@ const terminal = new Terminal({
 });
 ```
 
+### Interactive Prompts
+
+Commands can request user input interactively using the prompt system:
+
+```typescript
+import type { Command } from 'wcli';
+
+const loginCommand: Command = {
+  name: 'login',
+  description: 'Interactive login',
+  usage: 'login',
+  async execute(args, options) {
+    const { stdout, prompt } = options;
+    
+    if (!prompt) {
+      await stdout.write('Error: Prompt not available\n');
+      return { exitCode: 1 };
+    }
+
+    try {
+      // Simple prompt
+      const username = await prompt('Username:');
+      
+      // Prompt with validation and password masking
+      const password = await prompt({
+        message: 'Password:',
+        password: true, // Masks input with *
+        validate: (input) => {
+          if (input.length < 6) {
+            return 'Password must be at least 6 characters';
+          }
+          return true;
+        }
+      });
+      
+      await stdout.write(`Welcome, ${username}!\n`);
+      return { exitCode: 0 };
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Prompt cancelled') {
+        await stdout.write('Login cancelled.\n');
+        return { exitCode: 130 };
+      }
+      throw error;
+    }
+  }
+};
+```
+
+**Prompt Options:**
+- `message` - The prompt message to display
+- `defaultValue` - Optional default value (used when Enter is pressed with empty input)
+- `password` - If true, input is completely invisible (like macOS terminal password prompts)
+- `validate` - Function that returns `true` for valid input or an error message string
+
+**Built-in Interactive Commands:**
+- `login` - Interactive login with username/password
+- `survey` - Multi-question survey
+- `ask <question>` - Ask a simple question
+- `confirm <message>` - Yes/no confirmation prompt
+
+See [examples/prompts/](examples/prompts/) for more detailed examples.
+
 ## 📖 Command Usage
 
 ### Basic Commands
@@ -343,6 +406,12 @@ alias                          # List all aliases
 alias ll='ls -la'              # Create new alias
 alias gs='grep --color search' # Alias with arguments
 unalias gs                     # Remove an alias
+
+# Interactive Commands
+login                          # Interactive login prompt
+survey                         # Multi-question survey
+ask "What's your name?"        # Ask a question
+confirm "Are you sure?"        # Yes/no confirmation
 ```
 
 ### Keyboard Shortcuts

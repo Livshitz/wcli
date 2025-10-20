@@ -23,6 +23,8 @@
       v-model="inputValue"
       :prompt="currentPrompt"
       :autocomplete-fn="handleAutocomplete"
+      :is-password-mode="isPasswordMode"
+      :skip-history="isPromptMode"
       @submit="handleSubmit"
       @interrupt="handleInterrupt"
       @typing="hideSuggestions"
@@ -33,6 +35,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, createApp } from 'vue';
 import type { TerminalLine, WCLIConfig } from '@/types';
+import type { PromptRequest } from '@/core/PromptManager';
 import { Terminal } from '@/core/Terminal';
 import TerminalOutput from './TerminalOutput.vue';
 import TerminalInput from './TerminalInput.vue';
@@ -67,6 +70,9 @@ const currentPrompt = ref('');
 const suggestions = ref<string[]>([]);
 const outputRef = ref<InstanceType<typeof TerminalOutput> | null>(null);
 const inputRef = ref<InstanceType<typeof TerminalInput> | null>(null);
+const activePromptRequest = ref<PromptRequest | null>(null);
+const isPromptMode = ref(false);
+const isPasswordMode = ref(false);
 
 const maxDisplaySuggestions = 10;
 const displaySuggestions = computed(() => 
@@ -116,17 +122,58 @@ function appendLine(line: TerminalLine) {
 }
 
 function updatePrompt() {
-  currentPrompt.value = terminal.getPrompt();
+  if (isPromptMode.value && activePromptRequest.value) {
+    // In prompt mode, show the prompt message
+    currentPrompt.value = activePromptRequest.value.options.message;
+    isPasswordMode.value = activePromptRequest.value.options.password || false;
+  } else {
+    // Normal mode, show terminal prompt
+    currentPrompt.value = terminal.getPrompt();
+    isPasswordMode.value = false;
+  }
 }
 
 async function handleSubmit() {
   hideSuggestions();
   
-  const input = inputValue.value.trim();
-  if (!input) return;
+  let input = inputValue.value;
+  
+  // If in prompt mode, respond to the prompt
+  if (isPromptMode.value && activePromptRequest.value) {
+    const request = activePromptRequest.value;
+    
+    // Use default value if input is empty and default is provided
+    if (!input.trim() && request.options.defaultValue) {
+      input = request.options.defaultValue;
+    }
+    
+    // Show the prompt input (nothing for password, like macOS terminal)
+    const displayValue = request.options.password ? '' : input;
+    appendLine({
+      id: generateId(),
+      type: 'input',
+      content: request.options.message + (displayValue ? ' ' + displayValue : ''),
+      timestamp: new Date(),
+    });
+    
+    // Respond to the prompt
+    terminal.getPromptManager().respond(input);
+    
+    // Reset prompt mode
+    isPromptMode.value = false;
+    isPasswordMode.value = false;
+    activePromptRequest.value = null;
+    inputValue.value = '';
+    updatePrompt();
+    return;
+  }
+  
+  // Normal command execution
+  const trimmedInput = input.trim();
+  if (!trimmedInput) return;
   
   const aliasManager = terminal.getExecutor().getAliasManager();
-  const resolvedInput = aliasManager.resolve(input);
+  const resolvedInput = aliasManager.resolve(trimmedInput);
   const commandName = resolvedInput.split(/\s+/)[0];
   
   if (commandName === 'clear') {
@@ -139,11 +186,11 @@ async function handleSubmit() {
   appendLine({
     id: generateId(),
     type: 'input',
-    content: prompt + input,
+    content: prompt + trimmedInput,
     timestamp: new Date(),
   });
   
-  await terminal.executeCommand(input);
+  await terminal.executeCommand(trimmedInput);
   
   inputValue.value = '';
   updatePrompt();
@@ -233,12 +280,32 @@ async function autocompleteFilePath(partial: string): Promise<{ suggestions: str
 }
 
 function handleInterrupt() {
+  // If in prompt mode, cancel the prompt
+  if (isPromptMode.value && activePromptRequest.value) {
+    appendLine({
+      id: generateId(),
+      type: 'output',
+      content: '^C',
+      timestamp: new Date(),
+    });
+    
+    terminal.getPromptManager().cancel();
+    isPromptMode.value = false;
+    isPasswordMode.value = false;
+    activePromptRequest.value = null;
+    inputValue.value = '';
+    updatePrompt();
+    return;
+  }
+  
+  // Normal interrupt
   appendLine({
     id: generateId(),
     type: 'output',
     content: '^C',
     timestamp: new Date(),
   });
+  inputValue.value = '';
 }
 
 function showSuggestions(items: string[]) {
@@ -417,6 +484,22 @@ onMounted(async () => {
   
   terminal.onOutput((line: TerminalLine) => {
     appendLine(line);
+    updatePrompt();
+  });
+  
+  // Setup prompt handling
+  const promptManager = terminal.getPromptManager();
+  promptManager.onPrompt((request: PromptRequest) => {
+    isPromptMode.value = true;
+    activePromptRequest.value = request;
+    inputValue.value = request.options.defaultValue || '';
+    updatePrompt();
+  });
+  
+  promptManager.onPromptClear(() => {
+    isPromptMode.value = false;
+    isPasswordMode.value = false;
+    activePromptRequest.value = null;
     updatePrompt();
   });
   

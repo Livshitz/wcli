@@ -11,6 +11,8 @@ import { DefaultHistoryManager } from './DefaultHistoryManager';
 import { IndexedDBAdapter } from '@/adapters/IndexedDBAdapter';
 import { mergeConfig } from '@/config/defaults';
 import { registerBuiltInCommands } from '@/commands';
+import { PromptManager } from './PromptManager';
+import type { PromptRequest } from './PromptManager';
 
 export class Terminal {
   private fs: IFilesystem;
@@ -23,10 +25,12 @@ export class Terminal {
   private sessionManager?: ISessionManager;
   private historyManager?: IHistoryManager;
   private storageAdapter: IStorageAdapter;
+  private promptManager: PromptManager;
 
   constructor(config?: WCLIConfig) {
     this.config = mergeConfig(config);
     this.hooks = new EventEmitter();
+    this.promptManager = new PromptManager();
 
     // Initialize storage adapter (shared across filesystem, session, history)
     this.storageAdapter = this.config.storageAdapter || new IndexedDBAdapter();
@@ -40,6 +44,9 @@ export class Terminal {
 
     // Initialize executor
     this.executor = new CommandExecutor(this.fs);
+    
+    // Set prompt manager for executor
+    this.executor.setPromptManager(this.promptManager);
     
     // Set initial environment variables
     if (this.config.env) {
@@ -285,6 +292,13 @@ export class Terminal {
    */
   getHistoryManager(): IHistoryManager | undefined {
     return this.historyManager;
+  }
+
+  /**
+   * Get the prompt manager
+   */
+  getPromptManager(): PromptManager {
+    return this.promptManager;
   }
 
   /**

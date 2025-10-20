@@ -25,6 +25,13 @@ export interface Command {
   execute(args: string[], options: CommandOptions): Promise<CommandResult>;
 }
 
+export interface PromptOptions {
+  message: string;
+  defaultValue?: string;
+  password?: boolean;
+  validate?: (input: string) => boolean | string;
+}
+
 export interface CommandOptions {
   stdin: InputStream;
   stdout: OutputStream;
@@ -33,6 +40,7 @@ export interface CommandOptions {
   env: Record<string, string>;
   fs: IFilesystem;
   flags?: Record<string, boolean | string>;
+  prompt?: (options: string | PromptOptions) => Promise<string>;
 }
 
 export interface CommandResult {

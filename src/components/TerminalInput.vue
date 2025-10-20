@@ -4,8 +4,9 @@
     <input
       ref="inputRef"
       v-model="localValue"
-      type="text"
+      :type="isPasswordMode ? 'password' : 'text'"
       class="terminal-input"
+      :class="{ 'password-input': isPasswordMode }"
       autocomplete="off"
       spellcheck="false"
       @keydown="handleKeyDown"
@@ -20,6 +21,8 @@ interface Props {
   modelValue: string;
   prompt: string;
   autocompleteFn?: (cursorPos: number) => Promise<{ suggestions: string[]; replacement: string }>;
+  isPasswordMode?: boolean;
+  skipHistory?: boolean;
 }
 
 interface Emits {
@@ -206,7 +209,8 @@ function handleKeyDown(e: KeyboardEvent) {
 function handleSubmit() {
   const input = localValue.value.trim();
   
-  if (input) {
+  // Only add to history if not in password/prompt mode
+  if (input && !props.skipHistory) {
     if (history.value.length === 0 || history.value[history.value.length - 1] !== input) {
       history.value.push(input);
       
@@ -218,9 +222,9 @@ function handleSubmit() {
       // Save to localStorage
       saveHistoryToStorage();
     }
-    emit('submit');
   }
   
+  emit('submit');
   historyIndex.value = history.value.length;
 }
 
@@ -357,4 +361,18 @@ onMounted(() => {
   }
 });
 </script>
+
+<style scoped>
+/* Make password input completely invisible like macOS terminal */
+.terminal-input.password-input {
+  color: transparent;
+  text-shadow: none;
+  caret-color: var(--terminal-foreground, #00ff00);
+}
+
+.terminal-input.password-input::selection {
+  background-color: transparent;
+  color: transparent;
+}
+</style>
 

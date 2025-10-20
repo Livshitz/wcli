@@ -22,6 +22,10 @@ import { unaliasCommand } from './unalias';
 import { viewCommand } from './view';
 import { curlCommand } from './curl';
 import { codeCommand } from './code';
+import { login } from './login';
+import { survey } from './survey';
+import { ask } from './ask';
+import { confirm } from './confirm';
 
 export const builtInCommands: Command[] = [
   lsCommand,
@@ -47,6 +51,10 @@ export const builtInCommands: Command[] = [
   viewCommand,
   curlCommand,
   codeCommand,
+  login,
+  survey,
+  ask,
+  confirm,
 ];
 
 export function registerBuiltInCommands(executor: any): void {

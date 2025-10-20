@@ -2,12 +2,14 @@ import type { Command, CommandOptions, CommandResult, CommandPipeline, IFilesyst
 import { StringInputStream, StringOutputStream, PipeStream, EmptyInputStream } from '@/utils/Stream';
 import { CommandParser } from './CommandParser';
 import { AliasManager } from './AliasManager';
+import type { PromptManager } from './PromptManager';
 
 export class CommandExecutor {
   private commands: Map<string, Command> = new Map();
   private fs: IFilesystem;
   private env: Record<string, string> = {};
   private aliasManager: AliasManager;
+  private promptManager?: PromptManager;
 
   constructor(fs: IFilesystem) {
     this.fs = fs;
@@ -142,6 +144,7 @@ export class CommandExecutor {
       fs: this.fs,
       flags,
       aliasManager: this.aliasManager,
+      prompt: this.promptManager ? this.promptManager.prompt.bind(this.promptManager) : undefined,
     } as any;
 
     try {
@@ -217,6 +220,7 @@ export class CommandExecutor {
                 env: this.env,
                 fs: this.fs,
                 aliasManager: this.aliasManager,
+                prompt: this.promptManager ? this.promptManager.prompt.bind(this.promptManager) : undefined,
               } as any;
 
               const result = await module.execute(args, options);
@@ -269,6 +273,14 @@ export class CommandExecutor {
 
   getAliasManager(): AliasManager {
     return this.aliasManager;
+  }
+
+  setPromptManager(promptManager: PromptManager): void {
+    this.promptManager = promptManager;
+  }
+
+  getPromptManager(): PromptManager | undefined {
+    return this.promptManager;
   }
 }
 
