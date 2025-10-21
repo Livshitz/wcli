@@ -22,31 +22,31 @@ export function applyTheme(theme: ThemeConfig | Theme, target: HTMLElement = doc
   if (fullTheme.colors) {
     if (fullTheme.colors.background) {
       target.style.setProperty('--terminal-bg', fullTheme.colors.background);
-      target.style.setProperty('--bg-color', fullTheme.colors.background);
+      target.style.setProperty('--wcli-bg-color', fullTheme.colors.background);
     }
     if (fullTheme.colors.foreground) {
       target.style.setProperty('--terminal-fg', fullTheme.colors.foreground);
-      target.style.setProperty('--text-color', fullTheme.colors.foreground);
-      target.style.setProperty('--input-color', fullTheme.colors.foreground);
+      target.style.setProperty('--wcli-text-color', fullTheme.colors.foreground);
+      target.style.setProperty('--wcli-input-color', fullTheme.colors.foreground);
     }
     if (fullTheme.colors.prompt) {
       target.style.setProperty('--terminal-prompt', fullTheme.colors.prompt);
-      target.style.setProperty('--prompt-color', fullTheme.colors.prompt);
+      target.style.setProperty('--wcli-prompt-color', fullTheme.colors.prompt);
     }
     if (fullTheme.colors.error) {
       target.style.setProperty('--terminal-error', fullTheme.colors.error);
-      target.style.setProperty('--error-color', fullTheme.colors.error);
+      target.style.setProperty('--wcli-error-color', fullTheme.colors.error);
     }
     if (fullTheme.colors.success) {
       target.style.setProperty('--terminal-success', fullTheme.colors.success);
-      target.style.setProperty('--success-color', fullTheme.colors.success);
+      target.style.setProperty('--wcli-success-color', fullTheme.colors.success);
     }
     if (fullTheme.colors.info) {
       target.style.setProperty('--terminal-info', fullTheme.colors.info);
     }
     if (fullTheme.colors.warning) {
       target.style.setProperty('--terminal-warning', fullTheme.colors.warning);
-      target.style.setProperty('--warning-color', fullTheme.colors.warning);
+      target.style.setProperty('--wcli-warning-color', fullTheme.colors.warning);
     }
     if (fullTheme.colors.selection) {
       target.style.setProperty('--terminal-selection', fullTheme.colors.selection);

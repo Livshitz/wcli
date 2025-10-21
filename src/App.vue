@@ -1,5 +1,5 @@
 <template>
-  <div id="terminal">
+  <div class="terminal-wrapper">
     <TerminalComponent />
   </div>
 </template>
@@ -9,6 +9,7 @@ import TerminalComponent from './components/TerminalComponent.vue';
 </script>
 
 <style>
+@import './styles/host.css';
 @import './styles/terminal.css';
 </style>
 

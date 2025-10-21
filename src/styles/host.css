@@ -1,0 +1,30 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+  }
+  
+html {
+	touch-action: manipulation; /* Prevent double-tap zoom and reduce touch delay */
+	-webkit-text-size-adjust: 100%; /* Prevent font scaling in landscape */
+}
+
+body {
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'Courier New', monospace;
+	background-color: var(--wcli-bg-color);
+	color: var(--wcli-text-color);
+	height: 100vh;
+	height: 100dvh; /* Use dynamic viewport height for mobile browsers */
+	overflow: hidden;
+	touch-action: manipulation; /* Disable pinch zoom and double-tap zoom */
+}
+
+#app {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	height: 100dvh; /* Use dynamic viewport height for mobile browsers */
+	padding: 20px;
+	overflow: hidden;
+	touch-action: manipulation; /* Disable pinch zoom */
+}

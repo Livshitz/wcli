@@ -357,7 +357,7 @@ onUnmounted(() => {
 }
 
 .intro-welcome {
-  color: var(--text-color);
+  color: var(--wcli-text-color);
   line-height: 1.5;
 }
 
@@ -393,7 +393,7 @@ onUnmounted(() => {
   right: 22px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'Courier New', monospace;
   font-size: 10px;
-  color: var(--prompt-color);
+  color: var(--wcli-prompt-color);
   opacity: 0.7;
   padding: 2px 6px;
   border: 1px solid rgba(57, 186, 230, 0.3);
@@ -422,7 +422,7 @@ onUnmounted(() => {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'Courier New', monospace;
   font-size: 14px;
   line-height: 1.2;
-  color: var(--text-color);
+  color: var(--wcli-text-color);
   margin: 0;
   padding: 0;
   white-space: pre;
@@ -459,7 +459,7 @@ onUnmounted(() => {
   text-align: center;
   margin: 0;
   padding: 20px;
-  color: var(--prompt-color);
+  color: var(--wcli-prompt-color);
   letter-spacing: 1px;
   text-shadow: 0 0 10px rgba(57, 186, 230, 0.5);
   position: relative;
