@@ -1,4 +1,4 @@
-import type { Command } from '@/types';
+import type { Command } from '../types';
 import { lsCommand } from './ls';
 import { cdCommand } from './cd';
 import { pwdCommand } from './pwd';

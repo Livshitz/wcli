@@ -10,8 +10,8 @@ export default defineConfig({
       'wcli/components': resolve(__dirname, '../../src/components'),
       'wcli/adapters': resolve(__dirname, '../../src/adapters'),
       'wcli/themes': resolve(__dirname, '../../src/themes'),
+      'wcli/styles': resolve(__dirname, '../../src/styles'),
       'wcli': resolve(__dirname, '../../src'),
-      '@': resolve(__dirname, '../../src'),
     },
   },
   server: {

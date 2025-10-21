@@ -1,4 +1,4 @@
-import type { IFilesystem, TerminalLine, WCLIConfig } from '@/types';
+import type { IFilesystem, TerminalLine, WCLIConfig } from '../types';
 import type { ISessionManager } from './ISessionManager';
 import type { IHistoryManager } from './IHistoryManager';
 import type { IStorageAdapter } from './IStorageAdapter';
@@ -8,9 +8,9 @@ import { PluginLoader } from './PluginLoader';
 import { EventEmitter } from './EventEmitter';
 import { DefaultSessionManager } from './DefaultSessionManager';
 import { DefaultHistoryManager } from './DefaultHistoryManager';
-import { IndexedDBAdapter } from '@/adapters/IndexedDBAdapter';
-import { mergeConfig } from '@/config/defaults';
-import { registerBuiltInCommands } from '@/commands';
+import { IndexedDBAdapter } from '../adapters/IndexedDBAdapter';
+import { mergeConfig } from '../config/defaults';
+import { registerBuiltInCommands } from '../commands';
 import { PromptManager } from './PromptManager';
 import type { PromptRequest } from './PromptManager';
 

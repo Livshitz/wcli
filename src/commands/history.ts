@@ -1,4 +1,4 @@
-import type { Command, CommandOptions, CommandResult } from '@/types';
+import type { Command, CommandOptions, CommandResult } from '../types';
 
 export const historyCommand: Command = {
   name: 'history',

@@ -1,5 +1,5 @@
-import type { ThemeConfig, Theme } from '@/types/theme';
-import { defaultTheme } from '@/themes/default';
+import type { ThemeConfig, Theme } from '../types/theme';
+import { defaultTheme } from '../themes/default';
 
 /**
  * Apply theme to the DOM using CSS custom properties

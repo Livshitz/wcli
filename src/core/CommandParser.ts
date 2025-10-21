@@ -1,4 +1,4 @@
-import type { ParsedCommand, CommandPipeline, PipelineOperator, Redirect } from '@/types';
+import type { ParsedCommand, CommandPipeline, PipelineOperator, Redirect } from '../types';
 
 export class CommandParser {
   parse(input: string): CommandPipeline {

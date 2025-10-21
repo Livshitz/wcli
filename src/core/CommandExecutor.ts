@@ -1,5 +1,5 @@
-import type { Command, CommandOptions, CommandResult, CommandPipeline, IFilesystem } from '@/types';
-import { StringInputStream, StringOutputStream, PipeStream, EmptyInputStream } from '@/utils/Stream';
+import type { Command, CommandOptions, CommandResult, CommandPipeline, IFilesystem } from '../types';
+import { StringInputStream, StringOutputStream, PipeStream, EmptyInputStream } from '../utils/Stream';
 import { CommandParser } from './CommandParser';
 import { AliasManager } from './AliasManager';
 import type { PromptManager } from './PromptManager';

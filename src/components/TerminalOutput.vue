@@ -15,8 +15,8 @@
 
 <script setup lang="ts">
 import { ref, watch, nextTick, createApp } from 'vue';
-import type { TerminalLine } from '@/types';
-import { ComponentLoader } from '@/core/ComponentLoader';
+import type { TerminalLine } from '../types';
+import { ComponentLoader } from '../core/ComponentLoader';
 
 interface Props {
   lines: TerminalLine[];

@@ -1,4 +1,4 @@
-import type { Command, CommandOptions, CommandResult } from '@/types';
+import type { Command, CommandOptions, CommandResult } from '../types';
 
 // Helper function for recursive directory search
 async function searchDirectory(

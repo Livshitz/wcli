@@ -1,4 +1,4 @@
-import type { IStorageAdapter } from '@/core/IStorageAdapter';
+import type { IStorageAdapter } from '../core/IStorageAdapter';
 
 /**
  * LocalStorage-based storage adapter.

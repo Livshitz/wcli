@@ -45,11 +45,6 @@ export default defineConfig({
       },
     },
   },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src'),
-    },
-  },
   test: {
     globals: true,
     environment: 'happy-dom',

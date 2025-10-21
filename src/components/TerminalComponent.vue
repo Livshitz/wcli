@@ -34,9 +34,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, createApp } from 'vue';
-import type { TerminalLine, WCLIConfig } from '@/types';
-import type { PromptRequest } from '@/core/PromptManager';
-import { Terminal } from '@/core/Terminal';
+import type { TerminalLine, WCLIConfig } from '../types';
+import type { PromptRequest } from '../core/PromptManager';
+import { Terminal } from '../core/Terminal';
 import TerminalOutput from './TerminalOutput.vue';
 import TerminalInput from './TerminalInput.vue';
 import IntroSection from './IntroSection.vue';

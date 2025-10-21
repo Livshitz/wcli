@@ -1,4 +1,4 @@
-import type { TerminalHistory } from '@/types';
+import type { TerminalHistory } from '../types';
 
 export class InputHistoryManager implements TerminalHistory {
   private history: string[] = [];

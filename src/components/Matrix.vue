@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import type { Frame } from '../types/matrix';
-import { renderFrame, textToBitmap, noise2D } from '@/utils/MatrixRenderer';
+import { renderFrame, textToBitmap, noise2D } from '../utils/MatrixRenderer';
 
 interface Props {
   rows: number;

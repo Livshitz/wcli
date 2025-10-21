@@ -10,7 +10,7 @@ export class ComponentLoader {
   private static getLocalComponents(): Record<string, () => Promise<any>> {
     if (!this.localComponents) {
       // Auto-discover all .vue files in components directory and subdirectories
-      const modules = import.meta.glob('@/components/**/*.vue');
+      const modules = import.meta.glob('../components/**/*.vue');
       
       // Convert paths to component names
       // e.g., '@/components/Matrix.vue' -> 'Matrix'

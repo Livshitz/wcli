@@ -1,4 +1,4 @@
-import type { Command, CommandOptions, CommandResult } from '@/types';
+import type { Command, CommandOptions, CommandResult } from '../types';
 
 // Helper function to count lines, words, and bytes in text
 function countText(text: string): { lines: number; words: number; bytes: number } {

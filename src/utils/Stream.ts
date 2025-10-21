@@ -1,4 +1,4 @@
-import type { InputStream, OutputStream } from '@/types';
+import type { InputStream, OutputStream } from '../types';
 
 export class StringInputStream implements InputStream {
   private data: string;

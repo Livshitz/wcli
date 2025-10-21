@@ -1,7 +1,7 @@
 import type { Command, IFilesystem } from './index';
-import type { IStorageAdapter } from '@/core/IStorageAdapter';
-import type { ISessionManager } from '@/core/ISessionManager';
-import type { IHistoryManager } from '@/core/IHistoryManager';
+import type { IStorageAdapter } from '../core/IStorageAdapter';
+import type { ISessionManager } from '../core/ISessionManager';
+import type { IHistoryManager } from '../core/IHistoryManager';
 import type { Component } from 'vue';
 
 /**

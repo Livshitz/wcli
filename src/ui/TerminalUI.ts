@@ -1,5 +1,5 @@
-import type { Terminal } from '@/core/Terminal';
-import type { TerminalLine } from '@/types';
+import type { Terminal } from '../core/Terminal';
+import type { TerminalLine } from '../types';
 import { LineRenderer } from './LineRenderer';
 import { InputHandler } from './InputHandler';
 import { IntroAnimation } from './IntroAnimation';

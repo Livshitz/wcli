@@ -1,5 +1,5 @@
-import type { Command, CommandOptions, CommandResult } from '@/types';
-import { ComponentLoader } from '@/core/ComponentLoader';
+import type { Command, CommandOptions, CommandResult } from '../types';
+import { ComponentLoader } from '../core/ComponentLoader';
 
 export const viewCommand: Command = {
   name: 'view',

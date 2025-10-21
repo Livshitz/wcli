@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
-import { IntroAnimation } from '@/ui/IntroAnimation';
+import { IntroAnimation } from '../ui/IntroAnimation';
 import DitherPanel from './DitherPanel.vue';
 import Matrix from './Matrix.vue';
 import packageJson from '../../package.json';

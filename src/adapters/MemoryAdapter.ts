@@ -1,4 +1,4 @@
-import type { IStorageAdapter } from '@/core/IStorageAdapter';
+import type { IStorageAdapter } from '../core/IStorageAdapter';
 
 /**
  * In-memory storage adapter.

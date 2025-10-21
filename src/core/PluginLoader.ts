@@ -1,4 +1,4 @@
-import type { Command, IFilesystem } from '@/types';
+import type { Command, IFilesystem } from '../types';
 import { CommandExecutor } from './CommandExecutor';
 
 export class PluginLoader {

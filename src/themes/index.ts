@@ -4,5 +4,5 @@ export { lightTheme } from './light';
 export { draculaTheme } from './dracula';
 export { nordTheme } from './nord';
 
-export * from '@/types/theme';
+export * from '../types/theme';
 

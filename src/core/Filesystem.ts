@@ -1,7 +1,7 @@
-import type { FileSystemNode, FileMetadata, IFilesystem } from '@/types';
+import type { FileSystemNode, FileMetadata, IFilesystem } from '../types';
 import type { IStorageAdapter } from './IStorageAdapter';
-import { PathResolver } from '@/utils/PathResolver';
-import { IndexedDBAdapter } from '@/adapters/IndexedDBAdapter';
+import { PathResolver } from '../utils/PathResolver';
+import { IndexedDBAdapter } from '../adapters/IndexedDBAdapter';
 
 export class VirtualFilesystem implements IFilesystem {
   private root: FileSystemNode;

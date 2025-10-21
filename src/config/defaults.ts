@@ -1,4 +1,4 @@
-import type { WCLIConfig } from '@/types/config';
+import type { WCLIConfig } from '../types/config';
 
 /**
  * Default configuration for WCLI

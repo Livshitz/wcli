@@ -1,4 +1,4 @@
-import type { TerminalLine } from '@/types';
+import type { TerminalLine } from '../types';
 
 export class LineRenderer {
   private container: HTMLElement;

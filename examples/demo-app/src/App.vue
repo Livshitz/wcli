@@ -80,7 +80,7 @@ import { Terminal, applyTheme as applyThemeUtil } from 'wcli';
 import { TerminalComponent } from 'wcli/components';
 import { defaultTheme, darkTheme, lightTheme, draculaTheme, nordTheme } from 'wcli/themes';
 import type { Command } from 'wcli';
-import '@/styles/terminal.css';
+import 'wcli/styles/terminal.css';
 
 // Custom command example
 const demoCommand: Command = {

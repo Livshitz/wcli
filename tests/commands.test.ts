@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { VirtualFilesystem } from '@/core/Filesystem';
-import { StringInputStream, StringOutputStream } from '@/utils/Stream';
+import { VirtualFilesystem } from '../src/core/Filesystem';
+import { StringInputStream, StringOutputStream } from '../src/utils/Stream';
 import { lsCommand } from '../src/commands/ls';
 import { cdCommand } from '../src/commands/cd';
 import { pwdCommand } from '../src/commands/pwd';
@@ -9,7 +9,7 @@ import { echoCommand } from '../src/commands/echo';
 import { grepCommand } from '../src/commands/grep';
 import { mkdirCommand } from '../src/commands/mkdir';
 import { touchCommand } from '../src/commands/touch';
-import type { CommandOptions } from '@/types';
+import type { CommandOptions } from '../src/types';
 
 describe('Commands', () => {
   let fs: VirtualFilesystem;

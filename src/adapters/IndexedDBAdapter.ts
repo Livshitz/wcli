@@ -1,4 +1,4 @@
-import type { IStorageAdapter } from '@/core/IStorageAdapter';
+import type { IStorageAdapter } from '../core/IStorageAdapter';
 
 /**
  * IndexedDB-based storage adapter for browser environments.

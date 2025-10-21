@@ -28,7 +28,7 @@ import { json } from '@codemirror/lang-json';
 import { markdown } from '@codemirror/lang-markdown';
 import { autocompletion } from '@codemirror/autocomplete';
 import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language';
-import type { IFilesystem } from '@/types';
+import type { IFilesystem } from '../types';
 import type { KeyBinding } from '@codemirror/view';
 import type { Extension } from '@codemirror/state';
 

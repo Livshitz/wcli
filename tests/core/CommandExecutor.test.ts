@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { VirtualFilesystem } from '../../src/core/Filesystem';
 import { CommandExecutor } from '../../src/core/CommandExecutor';
-import type { Command, CommandOptions, CommandResult } from '@/types';
+import type { Command, CommandOptions, CommandResult } from '../../src/types';
 
 describe('CommandExecutor', () => {
   let fs: VirtualFilesystem;
