@@ -7,10 +7,40 @@ export class VirtualFilesystem implements IFilesystem {
   private root: FileSystemNode;
   private cwd: string = '/';
   private storage: IStorageAdapter;
+  private changeListeners: Array<() => void> = [];
+  private cwdChangeListeners: Array<(cwd: string) => void> = [];
 
   constructor(storage?: IStorageAdapter) {
     this.root = this.createNode('/', 'directory');
     this.storage = storage || new IndexedDBAdapter('wcli-fs', 'filesystem');
+  }
+
+  onFilesystemChange(listener: () => void): () => void {
+    this.changeListeners.push(listener);
+    return () => {
+      const index = this.changeListeners.indexOf(listener);
+      if (index > -1) {
+        this.changeListeners.splice(index, 1);
+      }
+    };
+  }
+
+  onCwdChange(listener: (cwd: string) => void): () => void {
+    this.cwdChangeListeners.push(listener);
+    return () => {
+      const index = this.cwdChangeListeners.indexOf(listener);
+      if (index > -1) {
+        this.cwdChangeListeners.splice(index, 1);
+      }
+    };
+  }
+
+  private notifyChange(): void {
+    this.changeListeners.forEach(listener => listener());
+  }
+
+  private notifyCwdChange(): void {
+    this.cwdChangeListeners.forEach(listener => listener(this.cwd));
   }
 
   private createNode(name: string, type: 'file' | 'directory', content: string = ''): FileSystemNode {
@@ -69,6 +99,7 @@ export class VirtualFilesystem implements IFilesystem {
 
   setCwd(path: string): void {
     this.cwd = PathResolver.normalize(path);
+    this.notifyCwdChange();
   }
 
   async readFile(path: string): Promise<string> {
@@ -114,6 +145,7 @@ export class VirtualFilesystem implements IFilesystem {
     }
     
     await this.persist();
+    this.notifyChange();
   }
 
   async deleteFile(path: string): Promise<void> {
@@ -136,6 +168,7 @@ export class VirtualFilesystem implements IFilesystem {
     
     parent.children.delete(basename);
     await this.persist();
+    this.notifyChange();
   }
 
   async readDir(path: string): Promise<string[]> {
@@ -174,6 +207,7 @@ export class VirtualFilesystem implements IFilesystem {
     parent.children.set(basename, newDir);
     
     await this.persist();
+    this.notifyChange();
   }
 
   async exists(path: string): Promise<boolean> {

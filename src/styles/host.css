@@ -28,3 +28,7 @@ body {
 	overflow: hidden;
 	touch-action: manipulation; /* Disable pinch zoom */
 }
+
+.file-sidebar ~ .terminal-main {
+	padding-left: 20px;
+}

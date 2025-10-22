@@ -62,6 +62,8 @@ export interface IFilesystem {
   setCwd(path: string): void;
   isDirectory(path: string): Promise<boolean>;
   isFile(path: string): Promise<boolean>;
+  onFilesystemChange(listener: () => void): () => void;
+  onCwdChange(listener: (cwd: string) => void): () => void;
 }
 
 export interface InputStream {
