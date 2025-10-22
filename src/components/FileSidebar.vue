@@ -1,5 +1,5 @@
 <template>
-  <div v-if="visible">
+  <div v-if="visible" class="file-sidebar-container">
     <!-- Backdrop for mobile -->
     <div class="sidebar-backdrop" @click="hide"></div>
     
